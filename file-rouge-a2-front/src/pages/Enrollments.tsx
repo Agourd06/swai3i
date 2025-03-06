@@ -7,6 +7,7 @@ const Enrollments = () => {
     const { user } = useAuth();
     const location = useLocation();
     const [message, setMessage] = useState('');
+console.log(user?._id);
 
     useEffect(() => {
         if (location.state?.successMessage) {

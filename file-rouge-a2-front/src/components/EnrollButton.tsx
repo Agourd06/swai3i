@@ -4,7 +4,7 @@ import { enrollmentFetchers } from '../fetchers/enrollmentFetchers';
 import { AxiosError } from 'axios';
 import ConfirmDialog from './common/ConfirmDialog';
 import { useAuth } from '../contexts/AuthContext';
-import { EnrollmentStatus } from '../types/enrollment.types';
+import { Enrollment, EnrollmentStatus } from '../types/enrollment.types';
 import { toast } from 'react-toastify';
 
 interface EnrollButtonProps {
@@ -13,6 +13,7 @@ interface EnrollButtonProps {
     courseTitle: string;
     coursePrice: number;
     classroom: string;
+    enrollments: Enrollment[];
 }
 
 const EnrollButton: React.FC<EnrollButtonProps> = ({

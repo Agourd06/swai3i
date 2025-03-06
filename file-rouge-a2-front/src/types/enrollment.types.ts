@@ -24,6 +24,11 @@ export interface Enrollment {
         username: string;
         email: string;
     };
+    teacher: {
+        _id: string;
+        username: string;
+       
+    };
     status: EnrollmentStatus;
     isPaid: boolean;
     price: number;

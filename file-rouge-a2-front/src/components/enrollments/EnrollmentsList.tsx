@@ -35,26 +35,27 @@ const EnrollmentsList: React.FC<EnrollmentsListProps> = ({ studentId }) => {
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {enrollments.map((enrollment) => (
-                <EnrollmentCard 
-                    key={enrollment._id} 
-                    enrollment={enrollment}
-                    onStatusUpdate={loadEnrollments}
-                />
+                <div key={enrollment._id}>
+                    <EnrollmentCard 
+                        key={enrollment._id} 
+                        enrollment={enrollment}
+                        onStatusUpdate={loadEnrollments}
+                    />
+                    {enrollment.teacher && enrollment.course && (
+                        <Link 
+                            to={`/messaging/${enrollment.teacher._id}/${enrollment.course._id}`}
+                            className="text-blue-500 hover:underline"
+                        >
+                            Message Teacher
+                        </Link>
+                    )}
+                </div>
             ))}
             {enrollments.length === 0 && (
                 <div className="col-span-full text-center text-gray-500">
                     No enrollments found.
                 </div>
             )}
-            {enrollments.map((enrollment) => (
-                <Link 
-                    key={enrollment._id} 
-                    to={`/messaging/${enrollment.teacher._id}/${enrollment.course._id}`}
-                    className="text-blue-500 hover:underline"
-                >
-                    Message Teacher
-                </Link>
-            ))}
         </div>
     );
 };

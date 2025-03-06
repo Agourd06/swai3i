@@ -10,8 +10,6 @@ import EnrollmentSuccess from './pages/EnrollmentSuccess';
 import Layout from "./components/layout/Layout";
 import NotFound from "./pages/NotFound";
 import TeacherProfile from "./pages/TeacherProfile";
-import Messaging from "./components/Messaging";
-// import StudentProfile from "./pages/StudentProfile";
 
 
 export const router = createBrowserRouter([
@@ -56,19 +54,8 @@ export const router = createBrowserRouter([
                 path: '/teacher/:id',
                 element: <TeacherProfile />,
             },
-            {
-                path: '/messaging/:teacherId/:courseId',
-                element: (
-                    <ProtectedRoute 
-                        element={<Messaging />} 
-                        requiredRoles={['student', 'teacher']}
-                    />
-                ),
-            },
-            // {
-            //     path: '/student/:id',
-            //     element: <StudentProfile />,
-            // },
+        
+          
         ]
     },
     {
