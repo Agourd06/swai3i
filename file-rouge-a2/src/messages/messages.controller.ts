@@ -31,4 +31,9 @@ export class MessagesController {
   remove(@Param('id') id: string) {
     return this.messagesService.deleteMessage(id);
   }
+
+  @Get('room/:room')
+  getMessagesByRoom(@Param('room') room: string) {
+    return this.messagesService.getMessagesByRoom(room);
+  }
 }

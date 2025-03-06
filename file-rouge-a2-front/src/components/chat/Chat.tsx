@@ -18,20 +18,10 @@ const Chat: React.FC<ChatProps> = ({ courseId, teacherId, room }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Connect to WebSocket server
-    const newSocket = io('http://localhost:3001', {
-      auth: {
-        token: localStorage.getItem('token')
-      },
-      transports: ['websocket']
-    });
-
-    setSocket(newSocket);
-
-    // Fetch existing messages
     const fetchMessages = async () => {
       try {
         const existingMessages = await messagesFetchers.getMessagesByRoom(room);
+        console.log('Fetched messages:', existingMessages);
         setMessages(existingMessages);
       } catch (error) {
         console.error('Error fetching messages:', error);
@@ -39,26 +29,34 @@ const Chat: React.FC<ChatProps> = ({ courseId, teacherId, room }) => {
     };
 
     fetchMessages();
-
-    return () => {
-      newSocket.close();
-    };
   }, [room]);
 
   useEffect(() => {
-    if (!socket) return;
+    const newSocket = io('http://localhost:3001', {
+      auth: { 
+        token: localStorage.getItem('token'),
+        userId: user?._id
+      },
+      transports: ['websocket']
+    });
 
-    socket.emit('joinRoom', room);
+    newSocket.on('connect', () => {
+      console.log('Connected as user:', user?._id);
+      newSocket.emit('joinRoom', room);
+    });
 
-    socket.on('message', (message: Message) => {
+    newSocket.on('receiveMessage', (message: Message) => {
+      console.log('Received message:', message);
       setMessages(prev => [...prev, message]);
     });
 
+    setSocket(newSocket);
+
     return () => {
-      socket.off('message');
-      socket.emit('leaveRoom', room);
+      newSocket.emit('leaveRoom', room);
+      newSocket.close();
     };
-  }, [socket, room]);
+  }, [room, user?._id]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -69,53 +67,62 @@ const Chat: React.FC<ChatProps> = ({ courseId, teacherId, room }) => {
     if (!newMessage.trim() || !socket || !user) return;
 
     try {
-      await messagesFetchers.sendMessage({
+      const messageData = {
         content: newMessage,
         sender: user._id,
         receiver: teacherId,
         course: courseId,
         room: room
-      });
+      };
 
-      socket.emit('sendMessage', {
-        content: newMessage,
-        room: room
-      });
-
+      const message = await messagesFetchers.sendMessage(messageData);
+      
+      // Add message to local state immediately
+      setMessages(prev => [...prev, message]);
+      
+      // Emit to others in room
+      socket.emit('sendMessage', messageData);
+      
       setNewMessage('');
     } catch (error) {
       console.error('Error sending message:', error);
     }
   };
+// console.log("meesages" ,messages);
 
   return (
     <div className="flex flex-col h-[600px] bg-white rounded-lg shadow-lg">
       <div className="flex-1 p-4 overflow-y-auto">
-        {messages.map((message, index) => (
-          <div
-            key={index}
-            className={`mb-4 ${
-              message.sender === user?._id
-                ? 'ml-auto text-right'
-                : 'mr-auto text-left'
-            }`}
-          >
+        {messages.length === 0 ? (
+          <div className="text-center text-gray-500">No messages yet</div>
+        ) : (
+          messages.map((message, index) => (
             <div
-              className={`inline-block p-2 rounded-lg ${
-                message.sender === user?._id
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-gray-200 text-gray-800'
+              key={message._id || index}
+              className={`mb-4 ${
+                message.sender._id === user?._id ? 'ml-auto text-right' : 'mr-auto text-left'
               }`}
             >
-              {message.content}
+              <div
+                className={`inline-block p-3 rounded-lg max-w-[70%] ${
+                  message.sender._id === user?._id
+                    ? 'bg-blue-500 text-white'
+                    : 'bg-gray-200 text-gray-800'
+                }`}
+              >
+                {/* <p>   {message + user?._id + 'You' }</p> */}
+             
+                <p className="break-words">{message.content}</p>
+                <span className="text-xs opacity-75 mt-1 block">
+                  {new Date(message.createdAt).toLocaleTimeString()}
+                </span>
+              </div>
             </div>
-            <div className="text-xs text-gray-500 mt-1">
-              {new Date(message.createdAt).toLocaleTimeString()}
-            </div>
-          </div>
-        ))}
+          ))
+        )}
         <div ref={messagesEndRef} />
       </div>
+
       <form onSubmit={handleSendMessage} className="p-4 border-t">
         <div className="flex gap-2">
           <input
