@@ -1,12 +1,10 @@
 export interface Message {
     _id: string;
     content: string;
-    sender: {
-        _id: string;
-        username: string;
-    };
+    sender: string;
     receiver: string;
     course: string;
     room: string;
-    createdAt: string; // Add any other fields you need
+    createdAt: Date;
+    updatedAt: Date;
 } 
