@@ -8,17 +8,27 @@ import { CompleteEnrollmentDto } from './dto/complete-enrollment.dto';
 import { Classroom } from 'src/class-room/class-room.schema';
 import { Course, CourseType } from '../courses/courses.schema';
 import { EnrollmentStatus } from './enrollment-status.enum';
+import { User } from '../users/users.schema';
+import { UserRole } from 'src/common/enums/users.enum';
+
 @Injectable()
 export class EnrollmentsService {
   constructor(
     @InjectModel(Enrollment.name) private enrollmentModel: Model<Enrollment>,
     @InjectModel(Classroom.name) private classroomModel: Model<Classroom>,
     @InjectModel(Course.name) private courseModel: Model<Course>,
+    @InjectModel('User') private userModel: Model<User>,
     private coursesService: CoursesService,
   ) {}
 
   async create(createEnrollmentDto: CreateEnrollmentDto): Promise<Enrollment> {
     const { student, classroom,  price, timeSlots, status } = createEnrollmentDto;
+
+    // Verify that the student exists and has the student role
+    const studentUser = await this.userModel.findById(student);
+    if (!studentUser || studentUser.role !== UserRole.STUDENT) {
+      throw new BadRequestException('Invalid student ID');
+    }
 
     const course = await this.courseModel.findById(createEnrollmentDto.course);
     if (!course) {
@@ -58,7 +68,15 @@ export class EnrollmentsService {
       console.log('enrollmentData' , enrollmentData);
       
       const createdEnrollment = new this.enrollmentModel(enrollmentData);
-      return createdEnrollment.save();
+      const savedEnrollment = await createdEnrollment.save();
+
+      // Update the course's enrollments array
+      await this.courseModel.findByIdAndUpdate(
+        course._id,
+        { $push: { enrollments: savedEnrollment._id } }
+      );
+
+      return savedEnrollment;
     } else {
       // Handle non-classroom course enrollment logic
       const enrollmentData = {
@@ -71,7 +89,15 @@ export class EnrollmentsService {
       console.log('enrollmentData' , enrollmentData);
       
       const createdEnrollment = new this.enrollmentModel(enrollmentData);
-      return createdEnrollment.save();
+      const savedEnrollment = await createdEnrollment.save();
+
+      // Update the course's enrollments array
+      await this.courseModel.findByIdAndUpdate(
+        course._id,
+        { $push: { enrollments: savedEnrollment._id } }
+      );
+
+      return savedEnrollment;
     }
   }
 

@@ -160,13 +160,27 @@ export class CoursesService {
   }
 
   async findCoursesByTeacherId(teacherId: string): Promise<Course[]> {
-    const courses = await this.courseModel.find({ teacher: teacherId })
-      .populate('teacher', 'username email')
-      .exec();
+    try {
+      const courses = await this.courseModel.find({ teacher: teacherId })
+        .populate('teacher', 'username email')
+        .populate({
+          path: 'enrollments',
+          model: 'Enrollment',
+          populate: {
+            path: 'student',
+            model: 'User',
+            select: 'username email'
+          }
+        })
+        .exec();
 
-    if (!courses || courses.length === 0) {
-      throw new NotFoundException(`No courses found for teacher with ID ${teacherId}`);
+      if (!courses) {
+        throw new NotFoundException(`No courses found for teacher ${teacherId}`);
+      }
+
+      return courses;
+    } catch (error) {
+      throw new BadRequestException(`Error finding courses: ${error.message}`);
     }
-    return courses;
   }
 } 

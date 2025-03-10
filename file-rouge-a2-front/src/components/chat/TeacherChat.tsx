@@ -4,18 +4,19 @@ import { useAuth } from '../../contexts/AuthContext';
 import { Message } from '../../types/message.types';
 import { messagesFetchers } from '../../fetchers/messagesFetchers';
 
-interface ChatProps {
+interface TeacherChatProps {
   courseId: string;
-  teacherId: string;
+  studentId: string;
   room: string;
 }
 
-const Chat: React.FC<ChatProps> = ({ courseId, teacherId, room }) => {
+const TeacherChat: React.FC<TeacherChatProps> = ({ courseId, studentId, room }) => {
   const { user } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [socket, setSocket] = useState<Socket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+// console.log("messages", messages);
 
   useEffect(() => {
     const fetchMessages = async () => {
@@ -27,10 +28,11 @@ const Chat: React.FC<ChatProps> = ({ courseId, teacherId, room }) => {
         console.error('Error fetching messages:', error);
       }
     };
-
     fetchMessages();
   }, [room]);
+console.log("studentId", studentId);
 
+  // Socket connection
   useEffect(() => {
     const newSocket = io('http://localhost:3001', {
       auth: { 
@@ -45,6 +47,7 @@ const Chat: React.FC<ChatProps> = ({ courseId, teacherId, room }) => {
       newSocket.emit('joinRoom', room);
     });
 
+    // Listen for new messages
     newSocket.on('newMessage', (message: Message) => {
       console.log('Received new message:', message);
       setMessages(prev => [...prev, message]);
@@ -58,6 +61,7 @@ const Chat: React.FC<ChatProps> = ({ courseId, teacherId, room }) => {
     };
   }, [room, user?._id]);
 
+  // Scroll to bottom when messages update
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
@@ -70,25 +74,25 @@ const Chat: React.FC<ChatProps> = ({ courseId, teacherId, room }) => {
       const messageData = {
         content: newMessage,
         sender: user._id,
-        receiver: teacherId,
+        receiver: studentId,
         course: courseId,
         room: room
       };
 
-      // Only emit to socket
+      // Only emit to socket, don't update messages state here
       socket.emit('newMessage', messageData);
       
-      // Save to database without updating state
+      // Save to database
       await messagesFetchers.sendMessage(messageData);
       setNewMessage('');
     } catch (error) {
       console.error('Error sending message:', error);
     }
   };
-// console.log("meesages" ,messages);
+console.log("messages", messages);
 
   return (
-    <div className="flex flex-col h-[600px] bg-white rounded-lg shadow-lg">
+    <div className="flex flex-col h-[500px] bg-white rounded-lg">
       <div className="flex-1 p-4 overflow-y-auto">
         {messages.length === 0 ? (
           <div className="text-center text-gray-500">No messages yet</div>
@@ -108,8 +112,6 @@ const Chat: React.FC<ChatProps> = ({ courseId, teacherId, room }) => {
                     : 'bg-gray-200 text-gray-800'
                 }`}
               >
-                {/* <p>   {message + user?._id + 'You' }</p> */}
-             
                 <p className="break-words">{message.content}</p>
                 <span className="text-xs opacity-75 mt-1 block">
                   {new Date(message.createdAt).toLocaleTimeString()}
@@ -142,4 +144,4 @@ const Chat: React.FC<ChatProps> = ({ courseId, teacherId, room }) => {
   );
 };
 
-export default Chat; 
+export default TeacherChat; 
