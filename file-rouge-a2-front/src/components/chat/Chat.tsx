@@ -41,6 +41,7 @@ const Chat: React.FC<ChatProps> = ({ courseId, teacherId, room }) => {
     });
 
     newSocket.on('connect', () => {
+      console.log("room",room);
       console.log('Connected to socket');
       newSocket.emit('joinRoom', room);
     });

@@ -74,7 +74,7 @@ const OnlineCourses: React.FC = () => {
             <Chat
               courseId={selectedCourse._id}
               teacherId={selectedEnrollment.course.teacher}
-              room={`course_${selectedCourse._id}`}
+              room={`course_${selectedCourse._id+selectedEnrollment.student._id+selectedEnrollment.course.teacher}`}
             />
           </>
         )}

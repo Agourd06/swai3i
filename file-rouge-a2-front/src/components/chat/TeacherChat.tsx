@@ -44,6 +44,7 @@ console.log("studentId", studentId);
 
     newSocket.on('connect', () => {
       console.log('Connected to socket');
+      
       newSocket.emit('joinRoom', room);
     });
 
