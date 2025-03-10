@@ -11,15 +11,20 @@ export class MessagesService {
 
   async createMessage(createMessageDto: CreateMessageDto): Promise<Message> {
     const message = new this.messageModel(createMessageDto);
-    return message.save();
+    await message.save();
+    return this.messageModel
+      .findById(message._id)
+      .populate('sender', '_id username')
+      .populate('receiver', '_id username')
+      .exec();
   }
 
   async getMessagesByRoom(room: string): Promise<Message[]> {
     return this.messageModel
       .find({ room })
       .sort({ createdAt: 1 })
-      .populate('sender', 'username')
-      .populate('receiver', 'username')
+      .populate('sender', '_id username')
+      .populate('receiver', '_id username')
       .exec();
   }
 

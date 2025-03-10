@@ -38,12 +38,21 @@ const Navbar = () => {
                   My Enrollments
                 </Link>
               )}
-              <Link
-                to="/online-courses"
-                className="hover:text-gray-300 px-3 py-2 rounded-md"
-              >
-                Online Courses
-              </Link>
+              {user.role === 'student' ? (
+                <Link
+                  to="/online-courses"
+                  className="hover:text-gray-300 px-3 py-2 rounded-md"
+                >
+                  Online Courses
+                </Link>
+              ) : (
+                <Link
+                  to="/teacher/online-courses"
+                  className="hover:text-gray-300 px-3 py-2 rounded-md"
+                >
+                  My Online Courses
+                </Link>
+              )}
               {user.role === "student" && (
                 <Link
                   to={`/messaging/${user?._id}/someCourseId`}

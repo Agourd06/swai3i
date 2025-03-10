@@ -1,4 +1,6 @@
 import axios from 'axios';
+import { axiosInstance } from './axiosInstance';
+import { Course } from '../types/course.types';
 
 const API_URL = 'http://localhost:3000';
 
@@ -6,31 +8,6 @@ export enum CourseType {
   PRIVATE = 'private',
   CLASSROOM = 'classroom',
   ONLINE = 'online',
-}
-export interface Course {
-    _id: string;
-    title: string;
-    description: string;
-    subject: string;
-    level: string;
-    city: string;
-    price: number;
-    courseType: CourseType[];
-    duration: number;
-    location: string;
-    startDate: string;
-    endDate: string;
-    maxStudents: number;
-    enrolledStudents?: number;
-    timeSlots: {
-        day: string;
-        hour: number;
-        minute: number;
-    }[];
-    teacher: {
-        _id: string;
-        username: string;
-    };
 }
 
 export const courseFetchers = {
@@ -67,5 +44,19 @@ export const courseFetchers = {
             }
         });
         return response.data;
-    }
+    },
+
+    getTeacherCourses: async (teacherId: string): Promise<Course[]> => {
+        try {
+            const response = await axiosInstance.get(`/courses/teacher/${teacherId}`, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching teacher courses:', error);
+            throw error;
+        }
+    },
 }; 

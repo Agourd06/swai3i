@@ -49,14 +49,14 @@ export class MessagesGateway implements OnGatewayConnection, OnGatewayDisconnect
     return { event: 'leftRoom', data: room };
   }
 
-  @SubscribeMessage('message')
+  @SubscribeMessage('newMessage')
   async handleMessage(client: Socket, payload: CreateMessageDto) {
     try {
+      // Create message only once here
       const message = await this.messagesService.createMessage(payload);
       
-      // Emit to all clients in the room EXCEPT the sender
-      client.to(payload.room).emit('message', message);
-      
+      // Broadcast to everyone in the room including sender
+      this.server.to(payload.room).emit('newMessage', message);
       console.log(`Message sent in room ${payload.room}:`, message);
       return { event: 'messageSent', data: message };
     } catch (error) {

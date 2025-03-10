@@ -6,10 +6,10 @@ export class CreateMessageDto {
   @IsNotEmpty()
   content: string;
 
-  @IsMongoId()
+  @IsNotEmpty()
   sender: Types.ObjectId;
 
-  @IsMongoId()
+  @IsNotEmpty()
   receiver: Types.ObjectId;
 
   @IsMongoId()

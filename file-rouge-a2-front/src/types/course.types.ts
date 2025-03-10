@@ -1,21 +1,30 @@
+import { CourseType } from "../fetchers/courseFetchers";
+
 export interface Course {
-    _id?: string;
+    _id: string;
     title: string;
     description: string;
     subject: string;
     level: string;
     city: string;
     price: number;
+    courseType: CourseType[];
     duration: number;
-    location: string;
+    location?: string;
     startDate: string;
     endDate: string;
-    maxStudents: number;
-    enrolledStudents?: number;
-    timeSlots: {
-        day: string;
-        hour: number;
-        minute: number;
+    maxStudents?: number;
+    teacher: {
+        _id: string;
+        username: string;
+        email: string;
+    };
+    enrollments?: {
+        _id: string;
+        student: {
+            _id: string;
+            username: string;
+            email: string;
+        };
     }[];
-    teacher: string;
 } 

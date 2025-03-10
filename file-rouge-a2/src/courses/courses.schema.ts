@@ -61,6 +61,9 @@ export class Course extends Document {
 
   @Prop({ default: true })
   isActive: boolean;
+
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'Enrollment' }] })
+  enrollments: Types.ObjectId[];
 }
 
 export const CourseSchema = SchemaFactory.createForClass(Course); 

@@ -11,6 +11,7 @@ import Layout from "./components/layout/Layout";
 import NotFound from "./pages/NotFound";
 import TeacherProfile from "./pages/TeacherProfile";
 import OnlineCourses from './pages/OnlineCourses';
+import TeacherOnlineCourses from './pages/TeacherOnlineCourses';
 
 
 export const router = createBrowserRouter([
@@ -60,8 +61,17 @@ export const router = createBrowserRouter([
                 element: (
                     <ProtectedRoute
                         element={<OnlineCourses />}
-                        requiredRoles={['teacher', 'student']}
-                        />
+                        requiredRoles={['student']}
+                    />
+                ),
+            },
+            {
+                path: '/teacher/online-courses',
+                element: (
+                    <ProtectedRoute
+                        element={<TeacherOnlineCourses />}
+                        requiredRoles={['teacher']}
+                    />
                 ),
             },
         ]
