@@ -52,7 +52,9 @@ export class MessagesGateway implements OnGatewayConnection, OnGatewayDisconnect
   @SubscribeMessage('newMessage')
   async handleMessage(client: Socket, payload: CreateMessageDto) {
     try {
+      // Create message only once here
       const message = await this.messagesService.createMessage(payload);
+      
       // Broadcast to everyone in the room including sender
       this.server.to(payload.room).emit('newMessage', message);
       console.log(`Message sent in room ${payload.room}:`, message);

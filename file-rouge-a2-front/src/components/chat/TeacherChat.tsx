@@ -79,11 +79,8 @@ console.log("studentId", studentId);
         room: room
       };
 
-      // Only emit to socket, don't update messages state here
+      // Only emit to socket, remove database save
       socket.emit('newMessage', messageData);
-      
-      // Save to database
-      await messagesFetchers.sendMessage(messageData);
       setNewMessage('');
     } catch (error) {
       console.error('Error sending message:', error);

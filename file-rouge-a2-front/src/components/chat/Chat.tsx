@@ -75,11 +75,8 @@ const Chat: React.FC<ChatProps> = ({ courseId, teacherId, room }) => {
         room: room
       };
 
-      // Only emit to socket
+      // Only emit to socket, remove database save
       socket.emit('newMessage', messageData);
-      
-      // Save to database without updating state
-      await messagesFetchers.sendMessage(messageData);
       setNewMessage('');
     } catch (error) {
       console.error('Error sending message:', error);

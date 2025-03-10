@@ -36,6 +36,7 @@ const TeacherOnlineCourses: React.FC = () => {
     setShowChat(true);
   };
 
+console.log("courses", courses);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -56,7 +57,7 @@ const TeacherOnlineCourses: React.FC = () => {
               <h3 className="font-semibold mb-2">Enrolled Students:</h3>
               {course.enrollments?.map((enrollment) => (
                 <div key={enrollment._id} className="flex justify-between items-center mb-2">
-                  {/* <span>{enrollment.student.username}</span> */}
+                  <span>{enrollment.student.username}</span>
                   <button
                     onClick={() => handleOpenChat(course, enrollment.student._id)}
                     className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition-colors"
