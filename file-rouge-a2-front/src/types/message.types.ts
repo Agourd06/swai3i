@@ -8,5 +8,6 @@ export interface Message {
     receiver: string;
     course: string;
     room: string;
-    createdAt: string; // Add any other fields you need
+    createdAt: Date;
+    updatedAt: Date;
 } 

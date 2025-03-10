@@ -54,7 +54,8 @@ export class MessagesGateway implements OnGatewayConnection, OnGatewayDisconnect
     try {
       const message = await this.messagesService.createMessage(payload);
       
-      this.server.to(payload.room).emit('newMessage', message);
+      // Emit to all clients in the room EXCEPT the sender
+      client.to(payload.room).emit('message', message);
       
       console.log(`Message sent in room ${payload.room}:`, message);
       return { event: 'messageSent', data: message };

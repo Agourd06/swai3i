@@ -1,3 +1,5 @@
+import { CourseType } from "../fetchers/courseFetchers";
+
 export enum EnrollmentStatus {
     PENDING = 'PENDING',
     ACTIVE = 'ACTIVE',
@@ -11,8 +13,10 @@ export interface Enrollment {
         _id: string;
         title: string;
         description: string;
+        courseType: CourseType[];
         startDate: string;
         endDate: string;
+        teacher: string;
         timeSlots: {
             day: string;
             hour: number;
