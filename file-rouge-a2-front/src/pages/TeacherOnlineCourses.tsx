@@ -78,7 +78,7 @@ console.log("courses", courses);
             <TeacherChat
               courseId={selectedCourse?._id || ''}
               studentId={selectedStudent}
-              room={`course_${selectedCourse?._id+selectedStudent+selectedCourse.teacher || ''}`}
+              room={`course_${selectedCourse?._id+selectedStudent+selectedCourse.teacher._id || ''}`}
             />
         )} 
         </div>

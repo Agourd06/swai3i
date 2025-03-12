@@ -1,8 +1,8 @@
 export enum CourseType {
-    PRIVATE = 'PRIVATE',
-    CLASSROOM = 'CLASSROOM',
-    ONLINE = 'ONLINE'
-}
+    PRIVATE = 'private',
+    CLASSROOM = 'classroom',
+    ONLINE = 'online',
+  }
 
 export interface TimeSlot {
     day: string;

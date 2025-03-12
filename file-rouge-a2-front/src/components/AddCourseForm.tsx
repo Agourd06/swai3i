@@ -61,7 +61,9 @@ const AddCourseForm: React.FC<{ teacherId: string }> = ({ teacherId }) => {
     };
 
     const handleCourseTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const value = e.target.value as CourseType;
+        const value = e.target.value.toLowerCase() as CourseType;
+        console.log(value);
+        
         setCourseData(prevData => ({
             ...prevData,
             courseType: value ? [value] : []
