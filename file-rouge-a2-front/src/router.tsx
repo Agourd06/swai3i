@@ -43,7 +43,12 @@ export const router = createBrowserRouter([
       },
       {
         path: "courses/:id",
-        element: <CourseDetails />,
+        element: (
+          <ProtectedRoute
+            element={<CourseDetails />}
+            requiredRoles={["teacher", "student"]}
+          />
+        ),
       },
       {
         path: "enrollment-success",

@@ -10,7 +10,7 @@ const StudentRoute: React.FC<StudentRouteProps> = ({ element }) => {
     const { user, isAuthenticated } = useAuth();
 
     if (!isAuthenticated) {
-        return <Navigate to="/login" />;
+        return <Navigate to="/auth/login" />;
     }
 
     if (user?.role !== 'student') {
