@@ -7,7 +7,7 @@ export enum EnrollmentStatus {
     CANCELLED = 'CANCELLED'
 }
 
-export interface Enrollment {
+export interface    Enrollment {
     _id: string;
     course: {
         _id: string;
@@ -16,7 +16,10 @@ export interface Enrollment {
         courseType: CourseType[];
         startDate: string;
         endDate: string;
-        teacher: string;
+        teacher:   {
+            _id: string;
+            username: string;
+        };
         timeSlots: {
             day: string;
             hour: number;

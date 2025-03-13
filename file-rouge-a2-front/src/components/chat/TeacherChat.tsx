@@ -117,7 +117,7 @@ const TeacherChat: React.FC<TeacherChatProps> = ({
           backgroundRepeat: "repeat",
         }}
       >
-        {/* <div className="absolute inset-0 bg-white/60"></div> */}
+        <div className=" h-fit w-fit bg-white/60 pointer-events-none" />
 
         <div className="relative z-10">
           {messages.length === 0 ? (
@@ -159,8 +159,8 @@ const TeacherChat: React.FC<TeacherChatProps> = ({
                         message.sender._id === user?._id ||
                         (typeof message.sender === "string" &&
                           message.sender === user?._id)
-                          ? "bg-emerald-500 text-white"
-                          : "bg-gray-400/90 text-gray-100"
+                          ? "bg-emerald-700/90 text-white font-bold"
+                    : "bg-gray-700/90 text-gray-100 font-bold"
                       }`}
                   >
                     <p className="text-xs font-medium mb-1 text-gray-200">

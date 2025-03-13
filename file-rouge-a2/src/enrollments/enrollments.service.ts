@@ -115,7 +115,11 @@ export class EnrollmentsService {
     return this.enrollmentModel.find(query)
       .populate({
         path: 'course',
-        select: 'title description timeSlots startDate endDate price courseType teacher'
+        select: 'title description timeSlots startDate endDate price courseType teacher',
+        populate: {
+          path: 'teacher',
+          select: 'username email'
+        }
       })
       .populate('student', 'username email')
       .exec();

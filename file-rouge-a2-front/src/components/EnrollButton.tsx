@@ -12,7 +12,7 @@ interface EnrollButtonProps {
     studentId: string;
     courseTitle: string;
     coursePrice: number;
-    classroom: string;
+    // classroom: string;
     enrollments: Enrollment[];
 }
 
@@ -21,7 +21,7 @@ const EnrollButton: React.FC<EnrollButtonProps> = ({
     studentId,
     courseTitle,
     coursePrice,
-    classroom,
+    // classroom,
 }) => {
     const { user } = useAuth();
     const navigate = useNavigate();
@@ -47,7 +47,7 @@ const EnrollButton: React.FC<EnrollButtonProps> = ({
             const enrollmentData = {
                 course: courseId,
                 student: studentId,
-                classroom,
+                // classroom,
                 price: coursePrice,
                 status: EnrollmentStatus.PENDING,
             };

@@ -14,6 +14,7 @@ export interface Course {
     startDate: string;
     endDate: string;
     maxStudents?: number;
+    classroom?: string;
     teacher: {
         _id: string;
         username: string;

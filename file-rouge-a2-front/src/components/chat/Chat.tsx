@@ -1,19 +1,25 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { io, Socket } from 'socket.io-client';
-import { useAuth } from '../../contexts/AuthContext';
-import { Message } from '../../types/message.types';
-import { messagesFetchers } from '../../fetchers/messagesFetchers';
+import React, { useState, useEffect, useRef } from "react";
+import { io, Socket } from "socket.io-client";
+import { useAuth } from "../../contexts/AuthContext";
+import { Message } from "../../types/message.types";
+import { messagesFetchers } from "../../fetchers/messagesFetchers";
 
 interface ChatProps {
   courseId: string;
   teacherId: string;
+  teacherName: string;
   room: string;
 }
 
-const Chat: React.FC<ChatProps> = ({ courseId, teacherId, room }) => {
+const Chat: React.FC<ChatProps> = ({
+  courseId,
+  teacherId,
+  teacherName,
+  room,
+}) => {
   const { user } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
-  const [newMessage, setNewMessage] = useState('');
+  const [newMessage, setNewMessage] = useState("");
   const [socket, setSocket] = useState<Socket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -21,10 +27,10 @@ const Chat: React.FC<ChatProps> = ({ courseId, teacherId, room }) => {
     const fetchMessages = async () => {
       try {
         const existingMessages = await messagesFetchers.getMessagesByRoom(room);
-        console.log('Fetched messages:', existingMessages);
+        console.log("Fetched messages:", existingMessages);
         setMessages(existingMessages);
       } catch (error) {
-        console.error('Error fetching messages:', error);
+        console.error("Error fetching messages:", error);
       }
     };
 
@@ -32,35 +38,35 @@ const Chat: React.FC<ChatProps> = ({ courseId, teacherId, room }) => {
   }, [room]);
 
   useEffect(() => {
-    const newSocket = io('http://localhost:3001', {
-      auth: { 
-        token: localStorage.getItem('token'),
-        userId: user?._id
+    const newSocket = io("http://localhost:3001", {
+      auth: {
+        token: localStorage.getItem("token"),
+        userId: user?._id,
       },
-      transports: ['websocket']
+      transports: ["websocket"],
     });
 
-    newSocket.on('connect', () => {
-      console.log("room",room);
-      console.log('Connected to socket');
-      newSocket.emit('joinRoom', room);
+    newSocket.on("connect", () => {
+      console.log("room", room);
+      console.log("Connected to socket");
+      newSocket.emit("joinRoom", room);
     });
 
-    newSocket.on('newMessage', (message: Message) => {
-      console.log('Received new message:', message);
-      setMessages(prev => [...prev, message]);
+    newSocket.on("newMessage", (message: Message) => {
+      console.log("Received new message:", message);
+      setMessages((prev) => [...prev, message]);
     });
 
     setSocket(newSocket);
 
     return () => {
-      newSocket.emit('leaveRoom', room);
+      newSocket.emit("leaveRoom", room);
       newSocket.close();
     };
   }, [room, user?._id]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   const handleSendMessage = async (e: React.FormEvent) => {
@@ -73,33 +79,38 @@ const Chat: React.FC<ChatProps> = ({ courseId, teacherId, room }) => {
         sender: user._id,
         receiver: teacherId,
         course: courseId,
-        room: room
+        room: room,
       };
 
       // Only emit to socket, remove database save
-      socket.emit('newMessage', messageData);
-      setNewMessage('');
+      socket.emit("newMessage", messageData);
+      setNewMessage("");
     } catch (error) {
-      console.error('Error sending message:', error);
+      console.error("Error sending message:", error);
     }
   };
-// console.log("meesages" ,messages);
+  // console.log("meesages" ,messages);
 
   return (
     <div className="flex flex-col h-full bg-white">
       {/* Chat Header */}
-      <div className="px-4 sm:px-6 py-3 sm:py-4 border-b bg-white shadow-sm z-10">
-        <h2 className="text-base sm:text-lg font-semibold text-gray-800">Chat with Teacher</h2>
+      <div className="px-4 sm:px-6 py-3 sm:py-4 border-b bg-white shadow-sm z-10 flex gap-3 mt-2">
+        <div className="w-6 h-6 sm:w-8 sm:h-8 bg-emerald-500 rounded-full flex items-center justify-center text-white text-sm sm:text-base">
+          {teacherName?.charAt(0).toUpperCase()}
+        </div>
+        <h2 className="text-base sm:text-lg font-semibold text-gray-800">
+          Chat with {teacherName}
+        </h2>
       </div>
 
       {/* Messages Area */}
-      <div 
+      <div
         className="flex-1 p-3 sm:p-6 overflow-y-auto relative"
         style={{
           backgroundImage: `url('/images/chatbg.jpg')`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'repeat',
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "repeat",
         }}
       >
         {/* Messages Container */}
@@ -108,18 +119,25 @@ const Chat: React.FC<ChatProps> = ({ courseId, teacherId, room }) => {
             <div
               key={message._id || index}
               className={`mb-3 sm:mb-4 ${
-                message.sender._id === user?._id || (typeof message.sender === 'string' && message.sender === user?._id)
-                ? 'ml-auto text-right' : 'mr-auto text-left'
+                message.sender._id === user?._id ||
+                (typeof message.sender === "string" &&
+                  message.sender === user?._id)
+                  ? "ml-auto text-right"
+                  : "mr-auto text-left"
               }`}
             >
               <div
                 className={`inline-block p-2 sm:p-3 rounded-lg max-w-[85%] sm:max-w-[70%] ${
-                  message.sender._id === user?._id || (typeof message.sender === 'string' && message.sender === user?._id)
-                    ? 'bg-emerald-500 text-white font-bold'
-                    : 'bg-gray-400/90 text-gray-100 font-bold'
+                  message.sender._id === user?._id ||
+                  (typeof message.sender === "string" &&
+                    message.sender === user?._id)
+                    ? "bg-emerald-700/90 text-white font-bold"
+                    : "bg-gray-700/90 text-gray-100 font-bold"
                 }`}
               >
-                <p className="break-words text-sm sm:text-base">{message.content}</p>
+                <p className="break-words text-sm sm:text-base">
+                  {message.content}
+                </p>
                 <span className="text-[10px] sm:text-xs block mt-1">
                   {new Date(message.createdAt).toLocaleTimeString([], {
                     hour: "2-digit",
@@ -133,7 +151,10 @@ const Chat: React.FC<ChatProps> = ({ courseId, teacherId, room }) => {
       </div>
 
       {/* Message Input */}
-      <form onSubmit={handleSendMessage} className="px-3 sm:px-6 py-3 sm:py-4 border-t bg-gray-200">
+      <form
+        onSubmit={handleSendMessage}
+        className="px-3 sm:px-6 py-3 sm:py-4 border-t bg-gray-200"
+      >
         <div className="flex gap-2">
           <input
             type="text"
@@ -169,4 +190,4 @@ const Chat: React.FC<ChatProps> = ({ courseId, teacherId, room }) => {
   );
 };
 
-export default Chat; 
+export default Chat;

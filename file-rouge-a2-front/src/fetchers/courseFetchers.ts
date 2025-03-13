@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { axiosInstance } from './axiosInstance';
-import { Course } from '../types/course.types';
+import { Course } from '../types/Course';
 
 const API_URL = 'http://localhost:3000';
 
@@ -38,12 +38,23 @@ export const courseFetchers = {
     },
 
     getCourseById: async (id: string): Promise<Course> => {
-        const response = await axios.get(`${API_URL}/courses/${id}`, {
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem('token')}`
-            }
-        });
-        return response.data;
+        try {
+            const response = await axios.get(`${API_URL}/courses/${id}`, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+            // Ensure all required fields are present
+            return {
+                ...response.data,
+                classroom: response.data.classroom || null,
+                enrollments: response.data.enrollments || [],
+                timeSlots: response.data.timeSlots || []
+            };
+        } catch (error) {
+            console.error('Error fetching course:', error);
+            throw error;
+        }
     },
 
     getTeacherCourses: async (teacherId: string): Promise<Course[]> => {

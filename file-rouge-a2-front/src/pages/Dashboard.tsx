@@ -15,7 +15,6 @@ const Dashboard = () => {
   const [selectedClassroomId, setSelectedClassroomId] = useState("");
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [showModal, setShowModal] = useState(false);
-console.log(enrollments);
 
   useEffect(() => {
     const loadCourses = async () => {

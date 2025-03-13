@@ -18,10 +18,12 @@ const OnlineCourses: React.FC = () => {
         const userEnrollments = await enrollmentFetchers.getEnrollments({
           student: user._id,
         });
+        // console.log("onlineEnrollments", userEnrollments);
         const onlineEnrollments = userEnrollments.filter(
-          enrollment => enrollment.course.courseType.includes(CourseType.ONLINE)
+          (enrollment: Enrollment) => enrollment.course.courseType.includes(CourseType.ONLINE)
         );
         setEnrollments(onlineEnrollments);
+        
       } catch (error) {
         console.error('Error fetching enrollments:', error);
       }
@@ -33,6 +35,7 @@ const OnlineCourses: React.FC = () => {
   const handleOpenChat = (enrollment: Enrollment) => {
     setSelectedCourse(enrollment.course);
     setSelectedEnrollment(enrollment);
+    console.log("enrollment", enrollment);
   };
 
   return (
@@ -84,8 +87,9 @@ const OnlineCourses: React.FC = () => {
         {selectedCourse && selectedEnrollment ? (
           <Chat
             courseId={selectedCourse._id}
-            teacherId={selectedEnrollment.course.teacher}
-            room={`course_${selectedCourse._id}${selectedEnrollment.student._id}${selectedEnrollment.course.teacher}`}
+            teacherId={selectedEnrollment.course.teacher._id}
+            teacherName={selectedEnrollment.course.teacher.username}
+            room={`course_${selectedCourse._id}${selectedEnrollment.student._id}${selectedEnrollment.course.teacher._id}`}
           />
         ) : (
           <div className="flex-1 flex items-center justify-center text-gray-500 text-sm sm:text-base p-4 text-center">
