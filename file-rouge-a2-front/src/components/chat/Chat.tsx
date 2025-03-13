@@ -86,58 +86,82 @@ const Chat: React.FC<ChatProps> = ({ courseId, teacherId, room }) => {
 // console.log("meesages" ,messages);
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full bg-white">
       {/* Chat Header */}
-      <div className="px-6 py-4 border-b">
-        <h2 className="text-lg font-semibold text-gray-800">Chat with Teacher</h2>
+      <div className="px-4 sm:px-6 py-3 sm:py-4 border-b bg-white shadow-sm z-10">
+        <h2 className="text-base sm:text-lg font-semibold text-gray-800">Chat with Teacher</h2>
       </div>
 
       {/* Messages Area */}
-      <div className="flex-1 p-6 overflow-y-auto">
-        {messages.length === 0 ? (
-          <div className="text-center text-gray-500">No messages yet</div>
-        ) : (
-          messages.map((message, index) => (
+      <div 
+        className="flex-1 p-3 sm:p-6 overflow-y-auto relative"
+        style={{
+          backgroundImage: `url('/images/chatbg.jpg')`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'repeat',
+        }}
+      >
+        {/* Messages Container */}
+        <div className="relative z-10">
+          {messages.map((message, index) => (
             <div
               key={message._id || index}
-              className={`mb-4 ${
+              className={`mb-3 sm:mb-4 ${
                 message.sender._id === user?._id || (typeof message.sender === 'string' && message.sender === user?._id)
                 ? 'ml-auto text-right' : 'mr-auto text-left'
               }`}
             >
               <div
-                className={`inline-block p-3 rounded-lg max-w-[70%] ${
+                className={`inline-block p-2 sm:p-3 rounded-lg max-w-[85%] sm:max-w-[70%] ${
                   message.sender._id === user?._id || (typeof message.sender === 'string' && message.sender === user?._id)
-                    ? 'bg-emerald-500 text-white'
-                    : 'bg-gray-100 text-gray-800'
+                    ? 'bg-emerald-500 text-white font-bold'
+                    : 'bg-gray-400/90 text-gray-100 font-bold'
                 }`}
               >
-                <p className="break-words">{message.content}</p>
-                <span className="text-xs opacity-75 mt-1 block">
-                  {new Date(message.createdAt).toLocaleTimeString()}
+                <p className="break-words text-sm sm:text-base">{message.content}</p>
+                <span className="text-[10px] sm:text-xs block mt-1">
+                  {new Date(message.createdAt).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
                 </span>
               </div>
             </div>
-          ))
-        )}
-        <div ref={messagesEndRef} />
+          ))}
+        </div>
       </div>
 
       {/* Message Input */}
-      <form onSubmit={handleSendMessage} className="px-6 py-4 border-t">
+      <form onSubmit={handleSendMessage} className="px-3 sm:px-6 py-3 sm:py-4 border-t bg-gray-200">
         <div className="flex gap-2">
           <input
             type="text"
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
-            className="flex-1 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            className="flex-1 p-2 sm:p-3 text-sm sm:text-base border rounded-full focus:outline-none focus:ring-2 focus:ring-emerald-500"
             placeholder="Type your message..."
           />
           <button
             type="submit"
-            className="px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors"
+            className="px-4 sm:px-6 py-2 sm:py-3 bg-emerald-500 text-white rounded-full hover:bg-emerald-600 
+                     transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5
+                     flex items-center gap-2 text-sm sm:text-base"
           >
-            Send
+            <span className="hidden sm:inline">Send</span>
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+              />
+            </svg>
           </button>
         </div>
       </form>
