@@ -105,16 +105,17 @@ const AddCourseForm: React.FC<{ teacherId: string, setIsModalOpen: (isOpen: bool
     };
 
     return (
-        <div className="w-full p-6 bg-white shadow-lg rounded-lg">
+        <div className="w-full p-6 bg-white shadow-lg rounded-lg border-l-4 border-emerald-400">
             {error && (
                 <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
                     <span className="block sm:inline">{error}</span>
                 </div>
             )}
+    
             <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {['title', 'description', 'subject', 'level', 'city', 'price', 'duration', 'location', 'maxStudents', 'startDate', 'endDate'].map((field, index) => (
                     <div key={index} className="mb-4">
-                        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor={field}>
+                        <label className="block text-emerald-700 text-sm font-bold mb-2" htmlFor={field}>
                             {field.charAt(0).toUpperCase() + field.slice(1).replace(/([A-Z])/g, ' $1')}
                         </label>
                         {field === 'description' ? (
@@ -123,7 +124,7 @@ const AddCourseForm: React.FC<{ teacherId: string, setIsModalOpen: (isOpen: bool
                                 placeholder={`Enter ${field}`}
                                 onChange={handleChange}
                                 required
-                                className="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                className="shadow border rounded w-full py-2 px-3 text-emerald-700 leading-tight focus:outline-none focus:ring-2 focus:ring-emerald-500"
                             />
                         ) : (
                             <input
@@ -143,13 +144,14 @@ const AddCourseForm: React.FC<{ teacherId: string, setIsModalOpen: (isOpen: bool
                                     : field === 'endDate' 
                                     ? courseData.startDate 
                                     : undefined}
-                                className="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                className="shadow border rounded w-full py-2 px-3 text-emerald-700 leading-tight focus:outline-none focus:ring-2 focus:ring-emerald-500"
                             />
                         )}
                     </div>
                 ))}
+    
                 <div className="mb-4">
-                    <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="courseType">
+                    <label className="block text-emerald-700 text-sm font-bold mb-2" htmlFor="courseType">
                         Course Type
                     </label>
                     <select
@@ -157,7 +159,7 @@ const AddCourseForm: React.FC<{ teacherId: string, setIsModalOpen: (isOpen: bool
                         onChange={handleCourseTypeChange}
                         value={courseData.courseType[0] || ''}
                         required
-                        className="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        className="shadow border rounded w-full py-2 px-3 text-emerald-700 leading-tight focus:outline-none focus:ring-2 focus:ring-emerald-500"
                     >
                         <option value="">Select Course Type</option>
                         <option value="private">Private</option>
@@ -166,13 +168,14 @@ const AddCourseForm: React.FC<{ teacherId: string, setIsModalOpen: (isOpen: bool
                     </select>
                 </div>
             </div>
-            <h3 className="text-lg font-semibold mb-4">Time Slots</h3>
+    
+            <h3 className="text-lg font-semibold mb-4 text-emerald-800">Time Slots</h3>
             {courseData.timeSlots.map((slot, index) => (
                 <div key={index} className="flex mb-4">
                     <select
                         value={slot.day}
                         onChange={(e) => handleTimeSlotChange(index, 'day', e.target.value)}
-                        className="shadow border rounded w-1/3 py-2 px-3"
+                        className="shadow border rounded w-1/3 py-2 px-3 text-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                     >
                         <option value="">Select Day</option>
                         {daysOfWeek.map(day => (
@@ -185,7 +188,7 @@ const AddCourseForm: React.FC<{ teacherId: string, setIsModalOpen: (isOpen: bool
                         value={slot.hour}
                         onChange={(e) => handleTimeSlotChange(index, 'hour', Math.min(23, Number(e.target.value)))}
                         max="23"
-                        className="shadow border rounded w-1/3 py-2 px-3 mx-2"
+                        className="shadow border rounded w-1/3 py-2 px-3 mx-2 text-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                     />
                     <input
                         type="number"
@@ -193,22 +196,29 @@ const AddCourseForm: React.FC<{ teacherId: string, setIsModalOpen: (isOpen: bool
                         value={slot.minute}
                         onChange={(e) => handleTimeSlotChange(index, 'minute', Math.min(59, Number(e.target.value)))}
                         max="59"
-                        className="shadow border rounded w-1/3 py-2 px-3"
+                        className="shadow border rounded w-1/3 py-2 px-3 text-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                     />
                 </div>
             ))}
-            <button type="button" onClick={addTimeSlot} className="bg-green-500 text-white py-2 px-4 rounded">
+    
+            <button
+                type="button"
+                onClick={addTimeSlot}
+                className="bg-emerald-500 text-white py-2 px-4 rounded hover:bg-emerald-600 transition"
+            >
                 Add Time Slot
             </button>
+    
             <button
                 type="button"
                 onClick={handleSubmit}
-                className="bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline hover:bg-blue-700 w-full mt-4"
+                className="bg-emerald-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-emerald-700 hover:bg-emerald-700 w-full mt-4"
             >
                 Add Course
             </button>
         </div>
     );
+    
 };
 
 export default AddCourseForm; 
