@@ -90,8 +90,14 @@ console.log("studentId", studentId);
 console.log("messages", messages);
 
   return (
-    <div className="flex flex-col h-[500px] bg-white rounded-lg">
-      <div className="flex-1 p-4 overflow-y-auto">
+    <div className="flex flex-col h-full">
+      {/* Chat Header */}
+      <div className="px-6 py-4 border-b">
+        <h2 className="text-lg font-semibold text-gray-800">Chat with Student</h2>
+      </div>
+
+      {/* Messages Area */}
+      <div className="flex-1 p-6 overflow-y-auto">
         {messages.length === 0 ? (
           <div className="text-center text-gray-500">No messages yet</div>
         ) : (
@@ -106,8 +112,8 @@ console.log("messages", messages);
               <div
                 className={`inline-block p-3 rounded-lg max-w-[70%] ${
                   message.sender._id === user?._id || (typeof message.sender === 'string' && message.sender === user?._id)
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-gray-200 text-gray-800'
+                    ? 'bg-emerald-500 text-white'
+                    : 'bg-gray-100 text-gray-800'
                 }`}
               >
                 <p className="break-words">{message.content}</p>
@@ -121,18 +127,19 @@ console.log("messages", messages);
         <div ref={messagesEndRef} />
       </div>
 
-      <form onSubmit={handleSendMessage} className="p-4 border-t">
+      {/* Message Input */}
+      <form onSubmit={handleSendMessage} className="px-6 py-4 border-t">
         <div className="flex gap-2">
           <input
             type="text"
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
-            className="flex-1 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="flex-1 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
             placeholder="Type your message..."
           />
           <button
             type="submit"
-            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+            className="px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors"
           >
             Send
           </button>

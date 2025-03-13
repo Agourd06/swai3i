@@ -4,24 +4,14 @@ import { Enrollment, EnrollmentStatus } from '../types/enrollment.types';
 const API_URL = 'http://localhost:3000';
 
 export const enrollmentFetchers = {
-    getEnrollments: async (filters: { 
-        student?: string; 
-        course?: string; 
-        status?: EnrollmentStatus;
-        teacher?: string;
-    }): Promise<Enrollment[]> => {
-        try {
-            const response = await axios.get(`${API_URL}/enrollments`, {
-                params: filters,
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem('token')}`
-                }
-            });
-            return response.data as Enrollment[];
-        } catch (error) {
-            console.error('Error fetching enrollments:', error);
-            throw error;
-        }
+    getEnrollments: async ({ student, teacher }: { student?: string; teacher?: string }) => {
+        const query = student 
+            ? `?student=${student}` 
+            : teacher 
+            ? `?teacher=${teacher}` 
+            : '';
+        const response = await axios.get(`${API_URL}/enrollments${query}`);
+        return response.data;
     },
 
     markAsPaid: async (enrollmentId: string): Promise<Enrollment> => {

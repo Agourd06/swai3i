@@ -5,8 +5,7 @@ import AddCourseForm from "../components/AddCourseForm";
 import Modal from "../components/common/Modal";
 import { classroomFetchers } from "../fetchers/classroomFetcher";
 import { enrollmentFetchers } from "../fetchers/enrollmentFetchers";
-import EnrollButton from "../components/EnrollButton";
-import { useAuth } from "../contexts/AuthContext";
+// import { useAuth } from "../contexts/AuthContext";
 
 interface Teacher {
   _id: string;
@@ -44,7 +43,7 @@ const TeacherProfile = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { user } = useAuth();
+  // const { user } = useAuth();
 
   useEffect(() => {
     const fetchTeacherData = async () => {
@@ -134,17 +133,7 @@ const TeacherProfile = () => {
                           </li>
                         ))}
                     </ul>
-                    <EnrollButton 
-                      courseId={course._id}
-                      studentId={user?._id || ''}
-                      courseTitle={course.title}
-                      coursePrice={course.price}
-                      classroom={classroom._id}
-                      onError={(errorMessage) => {
-                          setError(errorMessage);
-                      }}
-                      enrollments={enrollments}
-                    />
+                    
                   </li>
                 ))}
               {classrooms.filter(classroom => classroom.course === course._id).length === 0 && (
@@ -162,7 +151,7 @@ const TeacherProfile = () => {
       </button>
 
       <Modal isOpen={isModalOpen} onClose={handleCloseModal}>
-        <AddCourseForm teacherId={id || ""} />
+        <AddCourseForm teacherId={id || ""} setIsModalOpen={setIsModalOpen}/>
       </Modal>
     </div>
   );

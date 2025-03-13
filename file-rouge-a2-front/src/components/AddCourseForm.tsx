@@ -13,7 +13,7 @@ const daysOfWeek = [
     { value: 'SUNDAY', label: 'Sunday' },
 ];
 
-const AddCourseForm: React.FC<{ teacherId: string }> = ({ teacherId }) => {
+const AddCourseForm: React.FC<{ teacherId: string, setIsModalOpen: (isOpen: boolean) => void }> = ({ teacherId, setIsModalOpen }) => {
     const navigate = useNavigate();
     const [courseData, setCourseData] = useState<CourseCreation>({
         title: '',
@@ -61,8 +61,7 @@ const AddCourseForm: React.FC<{ teacherId: string }> = ({ teacherId }) => {
     };
 
     const handleCourseTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const value = e.target.value.toLowerCase() as CourseType;
-        console.log(value);
+        const value = e.target.value as CourseType;
         
         setCourseData(prevData => ({
             ...prevData,
@@ -98,6 +97,7 @@ const AddCourseForm: React.FC<{ teacherId: string }> = ({ teacherId }) => {
             const response = await teacherFetchers.createCourse(formattedData);
             console.log('Course created successfully:', response);
             navigate(`/teacher/${teacherId}`);
+            setIsModalOpen(false);
         } catch (error: any) {
             setError(error.response?.data?.message || 'Failed to add course');
             console.error('Failed to add course:', error);
@@ -160,9 +160,9 @@ const AddCourseForm: React.FC<{ teacherId: string }> = ({ teacherId }) => {
                         className="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                     >
                         <option value="">Select Course Type</option>
-                        <option value="PRIVATE">Private</option>
-                        <option value="CLASSROOM">Classroom</option>
-                        <option value="ONLINE">Online</option>
+                        <option value="private">Private</option>
+                        <option value="classroom">Classroom</option>
+                        <option value="online">Online</option>
                     </select>
                 </div>
             </div>
