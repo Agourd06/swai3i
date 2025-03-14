@@ -8,6 +8,7 @@ interface ChatProps {
   courseId: string;
   teacherId: string;
   teacherName: string;
+  courseName: string;
   room: string;
 }
 
@@ -15,6 +16,7 @@ const Chat: React.FC<ChatProps> = ({
   courseId,
   teacherId,
   teacherName,
+  courseName,
   room,
 }) => {
   const { user } = useAuth();
@@ -94,13 +96,20 @@ const Chat: React.FC<ChatProps> = ({
   return (
     <div className="flex flex-col h-full bg-white">
       {/* Chat Header */}
-      <div className="px-4 sm:px-6 py-3 sm:py-4 border-b bg-white shadow-sm z-10 flex gap-3 mt-2">
-        <div className="w-6 h-6 sm:w-8 sm:h-8 bg-emerald-500 rounded-full flex items-center justify-center text-white text-sm sm:text-base">
-          {teacherName?.charAt(0).toUpperCase()}
+      <div className="px-4 sm:px-6 py-3 sm:py-4 border-b bg-white shadow-sm z-10">
+        <div className="flex items-center gap-3">
+          <div className="w-6 h-6 sm:w-8 sm:h-8 bg-emerald-500 rounded-full flex items-center justify-center text-white text-sm sm:text-base">
+            {teacherName?.charAt(0).toUpperCase()}
+          </div>
+          <div>
+            <h2 className="text-base sm:text-lg font-semibold text-gray-800">
+              Chat with {teacherName}
+            </h2>
+            <p className="text-xs sm:text-sm text-emerald-600">
+              Course: {courseName}
+            </p>
+          </div>
         </div>
-        <h2 className="text-base sm:text-lg font-semibold text-gray-800">
-          Chat with {teacherName}
-        </h2>
       </div>
 
       {/* Messages Area */}

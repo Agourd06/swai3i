@@ -96,6 +96,7 @@ const TeacherOnlineCourses: React.FC = () => {
         {selectedCourse && selectedStudent ? (
           <TeacherChat
             courseId={selectedCourse._id}
+            courseName={selectedCourse.title}
             studentId={selectedStudent}
             studentName={selectedStudentName}
             room={`course_${selectedCourse._id}${selectedStudent}${selectedCourse.teacher._id}`}

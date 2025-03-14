@@ -89,6 +89,7 @@ const OnlineCourses: React.FC = () => {
             courseId={selectedCourse._id}
             teacherId={selectedEnrollment.course.teacher._id}
             teacherName={selectedEnrollment.course.teacher.username}
+            courseName={selectedCourse.title}
             room={`course_${selectedCourse._id}${selectedEnrollment.student._id}${selectedEnrollment.course.teacher._id}`}
           />
         ) : (

@@ -6,6 +6,7 @@ import { messagesFetchers } from "../../fetchers/messagesFetchers";
 
 interface TeacherChatProps {
   courseId: string;
+  courseName: string;
   studentId: string;
   studentName: string;
   room: string;
@@ -13,6 +14,7 @@ interface TeacherChatProps {
 
 const TeacherChat: React.FC<TeacherChatProps> = ({
   courseId,
+  courseName,
   studentId,
   studentName,
   room,
@@ -97,14 +99,19 @@ const TeacherChat: React.FC<TeacherChatProps> = ({
   return (
     <div className="flex flex-col h-full bg-white">
       {/* Chat Header */}
-      <div className="px-6 py-4 border-b bg-white shadow-sm z-10">
-        <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center text-white">
+      <div className="px-4 sm:px-6 py-3 sm:py-4 border-b bg-white shadow-sm z-10">
+        <div className="flex items-center gap-3">
+          <div className="w-6 h-6 sm:w-8 sm:h-8 bg-emerald-500 rounded-full flex items-center justify-center text-white text-sm sm:text-base">
             {studentName.charAt(0).toUpperCase()}
           </div>
-          <h2 className="text-lg font-semibold text-gray-800">
-            Chat with {studentName}
-          </h2>
+          <div>
+            <h2 className="text-base sm:text-lg font-semibold text-gray-800">
+              Chat with {studentName}
+            </h2>
+            <p className="text-xs sm:text-sm text-emerald-600">
+              Course: {courseName}
+            </p>
+          </div>
         </div>
       </div>
 
