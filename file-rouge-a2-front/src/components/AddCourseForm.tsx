@@ -13,7 +13,17 @@ const daysOfWeek = [
     { value: 'SUNDAY', label: 'Sunday' },
 ];
 
-const AddCourseForm: React.FC<{ teacherId: string, setIsModalOpen: (isOpen: boolean) => void }> = ({ teacherId, setIsModalOpen }) => {
+interface AddCourseFormProps {
+    teacherId: string;
+    setIsModalOpen: (isOpen: boolean) => void;
+    onCourseAdded?: () => Promise<void>;
+}
+
+const AddCourseForm: React.FC<AddCourseFormProps> = ({ 
+    teacherId, 
+    setIsModalOpen,
+    onCourseAdded 
+}) => {
     const navigate = useNavigate();
     const [courseData, setCourseData] = useState<CourseCreation>({
         title: '',
@@ -98,6 +108,9 @@ const AddCourseForm: React.FC<{ teacherId: string, setIsModalOpen: (isOpen: bool
             console.log('Course created successfully:', response);
             navigate(`/teacher/${teacherId}`);
             setIsModalOpen(false);
+            if (onCourseAdded) {
+                await onCourseAdded();
+            }
         } catch (error: any) {
             setError(error.response?.data?.message || 'Failed to add course');
             console.error('Failed to add course:', error);

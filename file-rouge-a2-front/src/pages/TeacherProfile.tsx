@@ -48,40 +48,40 @@ const TeacherProfile = () => {
   const [showClassroomModal, setShowClassroomModal] = useState(false);
   // const { user } = useAuth();
 
+  const fetchTeacherData = async () => {
+    if (!id) {
+      setError("Teacher ID is not available");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const teacherData = await teacherFetchers.fetchTeacherById(id);
+      setTeacher(teacherData);
+      const teacherCourses = await teacherFetchers.fetchCoursesByTeacherId(id);
+      setCourses(teacherCourses);
+
+      // Fetch classrooms for each course
+      const classroomsData = await Promise.all(
+        teacherCourses.map(async (course: Course) => {
+          const classrooms = await classroomFetchers.fetchClassroomsByCourseId(course._id);
+          return classrooms;
+        })
+      );
+      setClassrooms(classroomsData.flat());
+
+      // Fetch enrollments for the teacher's courses
+      const fetchedEnrollments = await enrollmentFetchers.getEnrollments({ teacher: id });
+      setEnrollments(fetchedEnrollments);
+    } catch (err) {
+      setError("Failed to load teacher data");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchTeacherData = async () => {
-      if (!id) {
-        setError("Teacher ID is not available");
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const teacherData = await teacherFetchers.fetchTeacherById(id);
-        setTeacher(teacherData);
-        const teacherCourses = await teacherFetchers.fetchCoursesByTeacherId(id);
-        setCourses(teacherCourses);
-
-        // Fetch classrooms for each course
-        const classroomsData = await Promise.all(
-          teacherCourses.map(async (course: Course) => {
-            const classrooms = await classroomFetchers.fetchClassroomsByCourseId(course._id);
-            return classrooms;
-          })
-        );
-        setClassrooms(classroomsData.flat());
-
-        // Fetch enrollments for the teacher's courses
-        const fetchedEnrollments = await enrollmentFetchers.getEnrollments({ teacher: id });
-        setEnrollments(fetchedEnrollments);
-      } catch (err) {
-        setError("Failed to load teacher data");
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchTeacherData();
   }, [id]);
 
@@ -91,6 +91,8 @@ const TeacherProfile = () => {
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
+    // Refresh the courses data after modal closes
+    fetchTeacherData();
   };
 
   const ClassroomModal = ({ course }: { course: Course }) => {
@@ -254,7 +256,11 @@ const TeacherProfile = () => {
 
         {selectedCourse && <ClassroomModal course={selectedCourse} />}
         <Modal isOpen={isModalOpen} onClose={handleCloseModal}>
-          <AddCourseForm teacherId={id || ""} setIsModalOpen={setIsModalOpen}/>
+          <AddCourseForm 
+            teacherId={id || ""} 
+            setIsModalOpen={setIsModalOpen}
+            onCourseAdded={fetchTeacherData}
+          />
         </Modal>
       </div>
     </div>
