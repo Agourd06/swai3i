@@ -9,6 +9,7 @@ import CourseCard from "../components/courses/CourseCard";
 import WelcomeSection from "../components/dashboard/WelcomeSection";
 import CourseFilters from "../components/dashboard/CourseFilters";
 import { User } from "../types/auth.types";
+import Pagination from '../components/common/Pagination';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -22,6 +23,8 @@ const Dashboard = () => {
   const [priceRange, setPriceRange] = useState({ min: 0, max: 1000 });
   const [filteredCourses, setFilteredCourses] = useState<Course[]>([]);
   const [teacherSearchTerm, setTeacherSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const coursesPerPage = 6;
 
   useEffect(() => {
     const loadData = async () => {
@@ -85,6 +88,17 @@ const Dashboard = () => {
     filterCourses();
   }, [searchTerm, teacherSearchTerm, selectedTypes, priceRange, courses]);
 
+  // Calculate pagination
+  const indexOfLastCourse = currentPage * coursesPerPage;
+  const indexOfFirstCourse = indexOfLastCourse - coursesPerPage;
+  const currentCourses = filteredCourses.slice(indexOfFirstCourse, indexOfLastCourse);
+  const totalPages = Math.ceil(filteredCourses.length / coursesPerPage);
+
+  const handlePageChange = (pageNumber: number) => {
+    setCurrentPage(pageNumber);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -113,7 +127,7 @@ const Dashboard = () => {
         </h1>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredCourses.map((course) => (
+          {currentCourses.map((course) => (
             <CourseCard
               key={course._id}
               course={course}
@@ -143,6 +157,14 @@ const Dashboard = () => {
             </div>
           )}
         </div>
+
+        {filteredCourses.length > coursesPerPage && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
+        )}
 
         <EnrolledStudentsModal
           course={selectedCourse}
