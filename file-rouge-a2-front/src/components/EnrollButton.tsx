@@ -72,10 +72,21 @@ const EnrollButton: React.FC<EnrollButtonProps> = ({
             <button
                 onClick={handleEnrollClick}
                 disabled={loading}
-                className={`w-full py-2 px-4 rounded bg-blue-600 text-white 
-                    ${loading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700'}`}
+                className={`w-full py-3 px-6 rounded-lg font-medium transition-all duration-300
+                    ${loading 
+                        ? 'bg-emerald-100 text-emerald-400 cursor-not-allowed' 
+                        : 'bg-emerald-600 text-white hover:bg-emerald-700 hover:shadow-lg transform hover:-translate-y-0.5'
+                    }
+                    focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2`}
             >
-                {loading ? 'Enrolling...' : 'Enroll Now'}
+                {loading ? (
+                    <div className="flex items-center justify-center space-x-2">
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                        <span>Enrolling...</span>
+                    </div>
+                ) : (
+                    'Enroll Now'
+                )}
             </button>
 
             <ConfirmDialog

@@ -1,99 +1,89 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
-import { courseFetchers, Course } from "../fetchers/courseFetchers";
+import { courseFetchers, Course, CourseType } from "../fetchers/courseFetchers";
 import { enrollmentFetchers } from "../fetchers/enrollmentFetchers";
 import { Enrollment } from "../types/enrollment.types";
 import { toast } from "react-toastify";
 import EnrolledStudentsModal from "../components/modals/EnrolledStudentsModal";
 import CourseCard from "../components/courses/CourseCard";
+import WelcomeSection from "../components/dashboard/WelcomeSection";
+import CourseFilters from "../components/dashboard/CourseFilters";
+import { User } from "../types/auth.types";
 
 const Dashboard = () => {
   const { user } = useAuth();
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
   const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
-  const [selectedClassroomId, setSelectedClassroomId] = useState("");
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedTypes, setSelectedTypes] = useState<CourseType[]>([]);
+  const [priceRange, setPriceRange] = useState({ min: 0, max: 1000 });
+  const [filteredCourses, setFilteredCourses] = useState<Course[]>([]);
+  const [teacherSearchTerm, setTeacherSearchTerm] = useState("");
 
   useEffect(() => {
-    const loadCourses = async () => {
+    const loadData = async () => {
       try {
         const fetchedCourses = await courseFetchers.fetchCourses();
         setCourses(fetchedCourses);
-      } catch (err) {
-        toast.error("Failed to fetch courses");
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
+        setFilteredCourses(fetchedCourses);
 
-    const loadEnrollments = async () => {
-      try {
-        // Load enrollments for both students and teachers
         if (user?.role === "student") {
           const fetchedEnrollments = await enrollmentFetchers.getEnrollments({
             student: user._id,
           });
           setEnrollments(fetchedEnrollments);
         } else if (user?.role === "teacher") {
-          // Fetch all enrollments for teacher's courses
           const fetchedEnrollments = await enrollmentFetchers.getEnrollments({
             teacher: user._id,
           });
           setEnrollments(fetchedEnrollments);
         }
       } catch (err) {
-        toast.error("Failed to fetch enrollments");
+        toast.error("Failed to fetch data");
         console.error(err);
+      } finally {
+        setLoading(false);
       }
     };
 
-    loadCourses();
-    loadEnrollments();
+    loadData();
   }, [user]);
 
-  const handleShowEnrolledStudents = (course: Course) => {
-    setSelectedCourse(course);
-    setShowModal(true);
-  };
+  useEffect(() => {
+    const filterCourses = () => {
+      let filtered = [...courses];
 
-  const renderWelcomeSection = () => {
-    if (!user) return null;
+      if (searchTerm) {
+        filtered = filtered.filter(course =>
+          course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          course.description.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+      }
 
-    return (
-      <div className="mb-10 bg-white rounded-xl p-8 shadow-lg border-l-4 border-emerald-400">
-        <div className="animate-fade-in">
-          <h2 className="text-3xl font-bold text-emerald-800 mb-3">
-            Welcome back, {user.username}! 👋
-          </h2>
-          <p className="text-gray-600">
-            {user.role === "teacher" ? (
-              <span>Manage your courses and track your students' progress.</span>
-            ) : (
-              <span>Browse available courses and continue your learning journey.</span>
-            )}
-          </p>
-          <div className="mt-4 flex gap-4">
-            {user.role === "teacher" ? (
-              <div className="bg-emerald-50 px-4 py-3 rounded-lg">
-                <span className="text-emerald-700 font-medium">
-                  {enrollments.length} Students Enrolled
-                </span>
-              </div>
-            ) : (
-              <div className="bg-emerald-50 px-4 py-3 rounded-lg">
-                <span className="text-emerald-700 font-medium">
-                  {enrollments.length} Courses Enrolled
-                </span>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    );
-  };
+      if (teacherSearchTerm) {
+        filtered = filtered.filter(course =>
+          course.teacher.username.toLowerCase().includes(teacherSearchTerm.toLowerCase())
+        );
+      }
+
+      if (selectedTypes.length > 0) {
+        filtered = filtered.filter(course =>
+          course.courseType.some((type: CourseType) => selectedTypes.includes(type))
+        );
+      }
+
+      filtered = filtered.filter(course =>
+        course.price >= priceRange.min && course.price <= priceRange.max
+      );
+
+      setFilteredCourses(filtered);
+    };
+
+    filterCourses();
+  }, [searchTerm, teacherSearchTerm, selectedTypes, priceRange, courses]);
 
   if (loading) {
     return (
@@ -106,39 +96,48 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-white to-emerald-50 p-6">
       <div className="container mx-auto">
-        {renderWelcomeSection()}
+        <WelcomeSection user={user as User} enrollments={enrollments} />
+        <CourseFilters
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          teacherSearchTerm={teacherSearchTerm}
+          setTeacherSearchTerm={setTeacherSearchTerm}
+          selectedTypes={selectedTypes}
+          setSelectedTypes={setSelectedTypes}
+          priceRange={priceRange}
+          setPriceRange={setPriceRange}
+        />
         
-        <h1 className="text-4xl font-bold mb-8 text-emerald-800 border-b-2 border-emerald-200 pb-3 transform transition hover:scale-105">
-          Available Courses
+        <h1 className="text-4xl font-bold mb-8 text-emerald-800 border-b-2 border-emerald-200 pb-3">
+          Available Courses {filteredCourses.length > 0 && `(${filteredCourses.length})`}
         </h1>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {courses.map((course) => (
-            <div
+          {filteredCourses.map((course) => (
+            <CourseCard
               key={course._id}
-              className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 hover:scale-102 border-l-4 border-emerald-400 overflow-hidden"
-            >
-              <CourseCard
-                course={course}
-                isEnrolled={enrollments.some(
-                  (enrollment) =>
-                    enrollment.student._id === user?._id &&
-                    enrollment.course._id === course._id
-                )}
-                userId={user?._id}
-                selectedClassroomId={selectedClassroomId}
-                enrollments={enrollments}
-                onShowEnrolledStudents={handleShowEnrolledStudents}
-              />
-            </div>
+              course={course}
+              isEnrolled={enrollments.some(
+                (enrollment) =>
+                  enrollment.student._id === user?._id &&
+                  enrollment.course._id === course._id
+              )}
+              userId={user?._id}
+              enrollments={enrollments}
+              selectedClassroomId={''}
+              onShowEnrolledStudents={(course) => {
+                setSelectedCourse(course);
+                setShowModal(true);
+              }}
+            />
           ))}
 
-          {courses.length === 0 && (
+          {filteredCourses.length === 0 && (
             <div className="col-span-full text-center py-16 bg-white rounded-lg shadow-md">
-              <div className="text-xl text-gray-500 animate-fade-in">
-                No courses available at the moment.
+              <div className="text-xl text-gray-500">
+                No courses found matching your criteria.
                 <div className="mt-2 text-emerald-600 text-sm">
-                  Check back later for new courses!
+                  Try adjusting your filters!
                 </div>
               </div>
             </div>

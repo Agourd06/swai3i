@@ -8,7 +8,7 @@ const TeacherOnlineCourses: React.FC = () => {
   const { user } = useAuth();
   const [courses, setCourses] = useState<Course[]>([]);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
-  const [selectedStudent, setSelectedStudent] = useState<any>(null);
+  const [selectedStudent, setSelectedStudent] = useState<string | null>(null);
   const [selectedStudentName, setSelectedStudentName] = useState<string>('');
 
   useEffect(() => {
@@ -18,7 +18,7 @@ const TeacherOnlineCourses: React.FC = () => {
         const teacherCourses = await courseFetchers.getTeacherCourses(user._id);
         const onlineCourses = teacherCourses.filter(
           course => course.courseType.includes(CourseType.ONLINE)
-        );
+        ) as Course[];
         setCourses(onlineCourses);
       } catch (error) {
         console.error('Error fetching courses:', error);
@@ -28,7 +28,7 @@ const TeacherOnlineCourses: React.FC = () => {
     fetchCourses();
   }, [user?._id]);
 
-  const handleOpenChat = (course: Course, student: any, studentName: string) => {
+  const handleOpenChat = (course: Course, student: string, studentName: string) => {
     setSelectedCourse(course);
     setSelectedStudent(student);
     setSelectedStudentName(studentName);

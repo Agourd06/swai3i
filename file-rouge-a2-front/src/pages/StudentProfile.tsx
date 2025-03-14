@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { studentFetchers } from '../fetchers/studentFetchers';
+import { Enrollment } from '../types/enrollment.types';
 
 const StudentProfile = () => {
     const { id } = useParams();
     const [student, setStudent] = useState<any>(null);
-    const [enrollments, setEnrollments] = useState<any[]>([]);
+    const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 

@@ -5,6 +5,7 @@ import AddCourseForm from "../components/AddCourseForm";
 import Modal from "../components/common/Modal";
 import { classroomFetchers } from "../fetchers/classroomFetcher";
 import { enrollmentFetchers } from "../fetchers/enrollmentFetchers";
+import ConfirmDialog from "../components/common/ConfirmDialog";
 // import { useAuth } from "../contexts/AuthContext";
 
 interface Teacher {
@@ -43,6 +44,8 @@ const TeacherProfile = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
+  const [showClassroomModal, setShowClassroomModal] = useState(false);
   // const { user } = useAuth();
 
   useEffect(() => {
@@ -88,6 +91,65 @@ const TeacherProfile = () => {
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
+  };
+
+  const ClassroomModal = ({ course }: { course: Course }) => {
+    if (!showClassroomModal) return null;
+
+    const courseClassrooms = classrooms.filter(classroom => classroom.course === course._id);
+
+    return (
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div className="bg-white rounded-xl p-6 max-w-4xl w-full shadow-xl transform transition-all animate-fade-in max-h-[90vh] overflow-y-auto">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-2xl font-bold text-emerald-800">{course.title} - Classrooms</h3>
+            <button
+              onClick={() => setShowClassroomModal(false)}
+              className="text-gray-500 hover:text-gray-700 transition-colors"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {courseClassrooms.map(classroom => (
+              <div key={classroom._id} className="bg-gray-50 rounded-xl p-6 shadow-sm">
+                <div className="flex justify-between items-center mb-4">
+                  <h4 className="text-lg font-semibold text-gray-900">Classroom {classroom._id.slice(-4)}</h4>
+                  <span className="bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full text-sm font-medium">
+                    {enrollments.filter(e => e.classroom === classroom._id).length}/{classroom.capacity} Students
+                  </span>
+                </div>
+                
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-2">
+                    {enrollments
+                      .filter(enrollment => enrollment.classroom === classroom._id)
+                      .map(enrollment => (
+                        <div
+                          key={enrollment._id}
+                          className="flex items-center space-x-2 bg-white p-2 rounded-lg shadow-sm"
+                        >
+                          <div className="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600 font-medium">
+                            {enrollment.student.username.charAt(0).toUpperCase()}
+                          </div>
+                          <span className="text-gray-700 truncate">{enrollment.student.username}</span>
+                        </div>
+                      ))}
+                  </div>
+                  
+                  {enrollments.filter(e => e.classroom === classroom._id).length === 0 && (
+                    <p className="text-gray-500 text-center italic">No students enrolled yet</p>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
   };
 
   if (loading) {
@@ -168,35 +230,20 @@ const TeacherProfile = () => {
                 <div key={course._id} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                   <div className="p-6">
                     <h3 className="text-xl font-semibold text-gray-900 mb-4">{course.title}</h3>
-                    <div className="space-y-4">
-                      {classrooms
-                        .filter(classroom => classroom.course === course._id)
-                        .map(classroom => (
-                          <div key={classroom._id} className="bg-gray-50 rounded-lg p-4">
-                            <div className="flex justify-between items-center mb-2">
-                              <span className="font-medium text-gray-900">Classroom</span>
-                              <span className="text-emerald-600 font-semibold">
-                                Capacity: {classroom.capacity}
-                              </span>
-                            </div>
-                            <div className="space-y-2">
-                              {enrollments
-                                .filter(enrollment => enrollment.classroom === classroom._id)
-                                .map(enrollment => (
-                                  <div key={enrollment._id} 
-                                       className="flex items-center space-x-2 text-gray-600 bg-white p-2 rounded-lg">
-                                    <div className="w-6 h-6 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600 text-sm">
-                                      {enrollment.student.username.charAt(0)}
-                                    </div>
-                                    <span>{enrollment.student.username}</span>
-                                  </div>
-                                ))}
-                            </div>
-                          </div>
-                        ))}
-                      {classrooms.filter(classroom => classroom.course === course._id).length === 0 && (
-                        <p className="text-gray-500 italic">No classrooms available</p>
-                      )}
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600">
+                        {classrooms.filter(c => c.course === course._id).length} Classrooms
+                      </span>
+                      <button
+                        onClick={() => {
+                          setSelectedCourse(course);
+                          setShowClassroomModal(true);
+                        }}
+                        className="px-4 py-2 text-emerald-600 hover:text-emerald-700 font-medium
+                                 hover:bg-emerald-50 rounded-lg transition-colors duration-200"
+                      >
+                        View Classrooms
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -205,6 +252,7 @@ const TeacherProfile = () => {
           </div>
         </div>
 
+        {selectedCourse && <ClassroomModal course={selectedCourse} />}
         <Modal isOpen={isModalOpen} onClose={handleCloseModal}>
           <AddCourseForm teacherId={id || ""} setIsModalOpen={setIsModalOpen}/>
         </Modal>

@@ -24,7 +24,7 @@ const CourseCard: React.FC<CourseCardProps> = ({
   const navigate = useNavigate();
 
   return (
-    <div className="p-6 h-full flex flex-col justify-between">
+    <div className="p-6 h-full flex flex-col justify-between shadow-lg hover:shadow-2xl transition-shadow duration-300">
       <div>
         <h2 className="text-2xl font-semibold mb-3 text-emerald-800">
           {course.title}

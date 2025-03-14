@@ -10,6 +10,13 @@ export enum CourseType {
   ONLINE = 'online',
 }
 
+interface CourseFilters {
+  search?: string;
+  type?: CourseType[];
+  minPrice?: number;
+  maxPrice?: number;
+}
+
 export const courseFetchers = {
     fetchCourses: async (): Promise<Course[]> => {
         try {
@@ -67,6 +74,21 @@ export const courseFetchers = {
             return response.data;
         } catch (error) {
             console.error('Error fetching teacher courses:', error);
+            throw error;
+        }
+    },
+
+    fetchCoursesWithFilters: async (filters: CourseFilters): Promise<Course[]> => {
+        try {
+            const response = await axios.get(`${API_URL}/courses`, {
+                params: filters,
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching filtered courses:', error);
             throw error;
         }
     },
