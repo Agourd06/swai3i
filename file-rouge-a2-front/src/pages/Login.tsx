@@ -3,6 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { authService } from "../services/auth.service";
 import { useAuth } from "../contexts/AuthContext";
 import { LoginCredentials } from "../types/auth.types";
+import { loginSchema } from '../validations/loginValidation';
+import { z } from 'zod';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -11,7 +13,7 @@ export default function Login() {
     email: "",
     password: "",
   });
-  const [error, setError] = useState<string>("");
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -24,11 +26,22 @@ export default function Login() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      loginSchema.parse(credentials);
       const response = await authService.login(credentials);
       login(response.access_token, response.user);
       navigate("/dashboard");
     } catch (err: any) {
-      setError(err.response?.data?.message || "An error occurred during login");
+      if (err instanceof z.ZodError) {
+        const fieldErrors: { [key: string]: string } = {};
+        err.errors.forEach((error) => {
+          if (error.path) {
+            fieldErrors[error.path[0] as string] = error.message;
+          }
+        });
+        setErrors(fieldErrors);
+      } else {
+        setErrors({ form: err.response?.data?.message || "An error occurred during login" });
+      }
     }
   };
 
@@ -68,11 +81,11 @@ export default function Login() {
             </p>
           </div>
           <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-            {error && (
-              <div className="bg-red-50 text-red-500 p-3 rounded-md text-center text-sm">
-                {error}
+            {Object.entries(errors).map(([key, value]) => (
+              <div key={key} className="bg-red-50 text-red-500 p-3 rounded-md text-center text-sm">
+                {value}
               </div>
-            )}
+            ))}
             <div className="space-y-4">
               <div>
                 <label
@@ -85,7 +98,6 @@ export default function Login() {
                   id="email"
                   name="email"
                   type="email"
-                  required
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"
                   placeholder="Enter your email"
                   value={credentials.email}
@@ -103,7 +115,6 @@ export default function Login() {
                   id="password"
                   name="password"
                   type="password"
-                  required
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"
                   placeholder="Enter your password"
                   value={credentials.password}

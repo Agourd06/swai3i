@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { courseFetchers, Course, CourseType } from "../fetchers/courseFetchers";
 import { enrollmentFetchers } from "../fetchers/enrollmentFetchers";

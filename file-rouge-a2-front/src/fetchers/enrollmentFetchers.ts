@@ -1,7 +1,5 @@
-import axios from 'axios';
+import { axiosInstance } from './axiosInstance';
 import { Enrollment, EnrollmentStatus } from '../types/enrollment.types';
-
-const API_URL = 'http://localhost:3000';
 
 export const enrollmentFetchers = {
     getEnrollments: async ({ student, teacher }: { student?: string; teacher?: string }) => {
@@ -10,44 +8,18 @@ export const enrollmentFetchers = {
             : teacher 
             ? `?teacher=${teacher}` 
             : '';
-        const response = await axios.get(`${API_URL}/enrollments${query}`);
+        const response = await axiosInstance.get(`/enrollments${query}`);
         return response.data;
     },
 
     markAsPaid: async (enrollmentId: string): Promise<Enrollment> => {
-        try {
-            const response = await axios.put(
-                `${API_URL}/enrollments/${enrollmentId}/mark-paid`,
-                {},
-                {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('token')}`
-                    }
-                }
-            );
-            return response.data;
-        } catch (error) {
-            console.error('Error marking enrollment as paid:', error);
-            throw error;
-        }
+        const response = await axiosInstance.put(`/enrollments/${enrollmentId}/mark-paid`);
+        return response.data;
     },
 
     updateStatus: async (enrollmentId: string, status: EnrollmentStatus): Promise<Enrollment> => {
-        try {
-            const response = await axios.put(
-                `${API_URL}/enrollments/${enrollmentId}/status`,
-                { status },
-                {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('token')}`
-                    }
-                }
-            );
-            return response.data;
-        } catch (error) {
-            console.error('Error updating enrollment status:', error);
-            throw error;
-        }
+        const response = await axiosInstance.put(`/enrollments/${enrollmentId}/status`, { status });
+        return response.data;
     },
 
     createEnrollment: async (data: {
@@ -55,21 +27,8 @@ export const enrollmentFetchers = {
         student: string;
         status: EnrollmentStatus;
     }): Promise<Enrollment> => {
-        try {
-            const response = await axios.post(
-                `${API_URL}/enrollments`,
-                data,
-                {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('token')}`
-                    }
-                }
-            );
-            return response.data;
-        } catch (error) {
-            console.error('Error creating enrollment:', error);
-            throw error;
-        }
+        const response = await axiosInstance.post('/enrollments', data);
+        return response.data;
     },
 
     updateEnrollment: async (
@@ -79,15 +38,7 @@ export const enrollmentFetchers = {
             status?: EnrollmentStatus;
         }
     ): Promise<Enrollment> => {
-        const response = await axios.put(
-            `${API_URL}/enrollments/${enrollmentId}`,
-            updates,
-            {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem('token')}`
-                }
-            }
-        );
+        const response = await axiosInstance.put(`/enrollments/${enrollmentId}`, updates);
         return response.data;
     },
 
@@ -98,15 +49,7 @@ export const enrollmentFetchers = {
             status: EnrollmentStatus;
         }
     ): Promise<Enrollment> => {
-        const response = await axios.put(
-            `${API_URL}/enrollments/${enrollmentId}/complete`,
-            data,
-            {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem('token')}`
-                }
-            }
-        );
+        const response = await axiosInstance.put(`/enrollments/${enrollmentId}/complete`, data);
         return response.data;
     },
 }; 

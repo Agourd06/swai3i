@@ -92,4 +92,18 @@ export const courseFetchers = {
             throw error;
         }
     },
+
+    updateCourse: async (courseId: string, courseData: Partial<Course>): Promise<Course> => {
+        try {
+            const response = await axios.put(`${API_URL}/courses/${courseId}`, courseData, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Error updating course:', error);
+            throw error;
+        }
+    },
 }; 

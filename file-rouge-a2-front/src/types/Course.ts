@@ -1,5 +1,5 @@
+import { TimeSlot } from './courseCreation.types';
 import { Enrollment } from './enrollment.types';
-import { TimeSlot } from './TimeSlot'; // Adjust the import path as necessary
 
 export interface Course {
     _id: string;

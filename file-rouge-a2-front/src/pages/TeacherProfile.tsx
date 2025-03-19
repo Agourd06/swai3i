@@ -5,7 +5,9 @@ import AddCourseForm from "../components/AddCourseForm";
 import Modal from "../components/common/Modal";
 import { classroomFetchers } from "../fetchers/classroomFetcher";
 import { enrollmentFetchers } from "../fetchers/enrollmentFetchers";
-import ConfirmDialog from "../components/common/ConfirmDialog";
+import UpdateCourseForm from "../components/UpdateCourseForm";
+import { Course } from "../types/Course";
+// import ConfirmDialog from "../components/common/ConfirmDialog";
 // import { useAuth } from "../contexts/AuthContext";
 
 interface Teacher {
@@ -13,13 +15,13 @@ interface Teacher {
   username: string;
   email: string;
   phone: string;
-  address: string;
+  adress: string;
 }
 
-interface Course {
-  _id: string;
-  title: string;
-}
+// interface Course {
+//   _id: string;
+//   title: string;
+// }
 
 interface Classroom {
   _id: string;
@@ -46,6 +48,8 @@ const TeacherProfile = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [showClassroomModal, setShowClassroomModal] = useState(false);
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [courseToUpdate, setCourseToUpdate] = useState<Course | null>(null);
   // const { user } = useAuth();
 
   const fetchTeacherData = async () => {
@@ -58,20 +62,24 @@ const TeacherProfile = () => {
     try {
       const teacherData = await teacherFetchers.fetchTeacherById(id);
       setTeacher(teacherData);
+      console.log("teacherData", teacherData);
+
       const teacherCourses = await teacherFetchers.fetchCoursesByTeacherId(id);
       setCourses(teacherCourses);
 
-      // Fetch classrooms for each course
       const classroomsData = await Promise.all(
         teacherCourses.map(async (course: Course) => {
-          const classrooms = await classroomFetchers.fetchClassroomsByCourseId(course._id);
+          const classrooms = await classroomFetchers.fetchClassroomsByCourseId(
+            course._id
+          );
           return classrooms;
         })
       );
       setClassrooms(classroomsData.flat());
 
-      // Fetch enrollments for the teacher's courses
-      const fetchedEnrollments = await enrollmentFetchers.getEnrollments({ teacher: id });
+      const fetchedEnrollments = await enrollmentFetchers.getEnrollments({
+        teacher: id,
+      });
       setEnrollments(fetchedEnrollments);
     } catch (err) {
       setError("Failed to load teacher data");
@@ -91,59 +99,90 @@ const TeacherProfile = () => {
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
-    // Refresh the courses data after modal closes
     fetchTeacherData();
   };
 
   const ClassroomModal = ({ course }: { course: Course }) => {
     if (!showClassroomModal) return null;
 
-    const courseClassrooms = classrooms.filter(classroom => classroom.course === course._id);
+    const courseClassrooms = classrooms.filter(
+      (classroom) => classroom.course === course._id
+    );
 
     return (
       <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
         <div className="bg-white rounded-xl p-6 max-w-4xl w-full shadow-xl transform transition-all animate-fade-in max-h-[90vh] overflow-y-auto">
           <div className="flex justify-between items-center mb-6">
-            <h3 className="text-2xl font-bold text-emerald-800">{course.title} - Classrooms</h3>
+            <h3 className="text-2xl font-bold text-emerald-800">
+              {course.title} - Classrooms
+            </h3>
             <button
               onClick={() => setShowClassroomModal(false)}
               className="text-gray-500 hover:text-gray-700 transition-colors"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
             </button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {courseClassrooms.map(classroom => (
-              <div key={classroom._id} className="bg-gray-50 rounded-xl p-6 shadow-sm">
+            {courseClassrooms.map((classroom) => (
+              <div
+                key={classroom._id}
+                className="bg-gray-50 rounded-xl p-6 shadow-sm"
+              >
                 <div className="flex justify-between items-center mb-4">
-                  <h4 className="text-lg font-semibold text-gray-900">Classroom {classroom._id.slice(-4)}</h4>
+                  <h4 className="text-lg font-semibold text-gray-900">
+                    Classroom {classroom._id.slice(-4)}
+                  </h4>
                   <span className="bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full text-sm font-medium">
-                    {enrollments.filter(e => e.classroom === classroom._id).length}/{classroom.capacity} Students
+                    {
+                      enrollments.filter((e) => e.classroom === classroom._id)
+                        .length
+                    }
+                    /{classroom.capacity} Students
                   </span>
                 </div>
-                
+
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-2">
                     {enrollments
-                      .filter(enrollment => enrollment.classroom === classroom._id)
-                      .map(enrollment => (
+                      .filter(
+                        (enrollment) => enrollment.classroom === classroom._id
+                      )
+                      .map((enrollment) => (
                         <div
                           key={enrollment._id}
                           className="flex items-center space-x-2 bg-white p-2 rounded-lg shadow-sm"
                         >
                           <div className="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600 font-medium">
-                            {enrollment.student.username.charAt(0).toUpperCase()}
+                            {enrollment.student.username
+                              .charAt(0)
+                              .toUpperCase()}
                           </div>
-                          <span className="text-gray-700 truncate">{enrollment.student.username}</span>
+                          <span className="text-gray-700 truncate">
+                            {enrollment.student.username}
+                          </span>
                         </div>
                       ))}
                   </div>
-                  
-                  {enrollments.filter(e => e.classroom === classroom._id).length === 0 && (
-                    <p className="text-gray-500 text-center italic">No students enrolled yet</p>
+
+                  {enrollments.filter((e) => e.classroom === classroom._id)
+                    .length === 0 && (
+                    <p className="text-gray-500 text-center italic">
+                      No students enrolled yet
+                    </p>
                   )}
                 </div>
               </div>
@@ -191,7 +230,9 @@ const TeacherProfile = () => {
                 {teacher.username.charAt(0).toUpperCase()}
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">{teacher.username}'s Profile</h1>
+                <h1 className="text-3xl font-bold text-gray-900">
+                  {teacher.username}'s Profile
+                </h1>
                 <p className="text-emerald-600">{teacher.email}</p>
               </div>
             </div>
@@ -199,15 +240,21 @@ const TeacherProfile = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
               <div className="bg-emerald-50 p-4 rounded-lg">
                 <p className="text-sm text-gray-500">Email</p>
-                <p className="text-lg font-semibold text-emerald-600">{teacher.email}</p>
+                <p className="text-lg font-semibold text-emerald-600">
+                  {teacher.email}
+                </p>
               </div>
               <div className="bg-emerald-50 p-4 rounded-lg">
                 <p className="text-sm text-gray-500">Phone</p>
-                <p className="text-lg font-semibold text-emerald-600">{teacher.phone}</p>
+                <p className="text-lg font-semibold text-emerald-600">
+                  {teacher.phone}
+                </p>
               </div>
               <div className="bg-emerald-50 p-4 rounded-lg">
                 <p className="text-sm text-gray-500">Address</p>
-                <p className="text-lg font-semibold text-emerald-600">{teacher.address}</p>
+                <p className="text-lg font-semibold text-emerald-600">
+                  {teacher.adress}
+                </p>
               </div>
             </div>
           </div>
@@ -229,23 +276,83 @@ const TeacherProfile = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {courses.map((course) => (
-                <div key={course._id} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div
+                  key={course._id}
+                  className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-200"
+                >
                   <div className="p-6">
-                    <h3 className="text-xl font-semibold text-gray-900 mb-4">{course.title}</h3>
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-600">
-                        {classrooms.filter(c => c.course === course._id).length} Classrooms
+                    <div className="flex justify-between items-start mb-4">
+                      <h3 className="text-xl font-semibold text-gray-900">
+                        {course.title}
+                      </h3>
+                      <span className="bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full text-sm">
+                        {course.courseType[0]}
                       </span>
-                      <button
-                        onClick={() => {
-                          setSelectedCourse(course);
-                          setShowClassroomModal(true);
-                        }}
-                        className="px-4 py-2 text-emerald-600 hover:text-emerald-700 font-medium
-                                 hover:bg-emerald-50 rounded-lg transition-colors duration-200"
-                      >
-                        View Classrooms
-                      </button>
+                    </div>
+                    <p className="text-gray-600 mb-4 line-clamp-2">
+                      {course.description}
+                    </p>
+                    <div className="grid grid-cols-2 gap-4 mb-4">
+                      <div className="text-sm">
+                        <span className="text-gray-500">Price:</span>
+                        <p className="font-semibold text-emerald-600">
+                          ${course.price}
+                        </p>
+                      </div>
+                      <div className="text-sm">
+                        <span className="text-gray-500">Duration:</span>
+                        <p className="font-semibold text-emerald-600">
+                          {course.duration}h
+                        </p>
+                      </div>
+                      <div className="text-sm">
+                        <span className="text-gray-500">Level:</span>
+                        <p className="font-semibold text-emerald-600">
+                          {course.level}
+                        </p>
+                      </div>
+                      <div className="text-sm">
+                        <span className="text-gray-500">Students:</span>
+                        <p className="font-semibold text-emerald-600">
+                          {course.maxStudents}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex justify-between items-center pt-4 border-t">
+                    {course.courseType[0] == "classroom" && (
+                           <span className="text-sm text-gray-600">
+                           {
+                             classrooms.filter((c) => c.course === course._id)
+                               .length
+                           }{" "}
+                           Classrooms
+                         </span>
+                        )}
+                    
+                      <div className="space-x-2">
+                        <button
+                          onClick={() => {
+                            setCourseToUpdate(course);
+                            setIsUpdateModalOpen(true);
+                          }}
+                          className="px-3 py-1.5 text-emerald-600 hover:text-emerald-700 font-medium
+                                   hover:bg-emerald-50 rounded-lg transition-colors duration-200"
+                        >
+                          Edit
+                        </button>
+                        {course.courseType[0] == "classroom" && (
+                          <button
+                            onClick={() => {
+                              setSelectedCourse(course);
+                              setShowClassroomModal(true);
+                            }}
+                            className="px-3 py-1.5 bg-emerald-500 text-white font-medium
+                                   hover:bg-emerald-600 rounded-lg transition-colors duration-200"
+                          >
+                            View Classrooms
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -256,12 +363,27 @@ const TeacherProfile = () => {
 
         {selectedCourse && <ClassroomModal course={selectedCourse} />}
         <Modal isOpen={isModalOpen} onClose={handleCloseModal}>
-          <AddCourseForm 
-            teacherId={id || ""} 
+          <AddCourseForm
+            teacherId={id || ""}
             setIsModalOpen={setIsModalOpen}
             onCourseAdded={fetchTeacherData}
           />
         </Modal>
+        {courseToUpdate && (
+          <Modal
+            isOpen={isUpdateModalOpen}
+            onClose={() => setIsUpdateModalOpen(false)}
+          >
+            <UpdateCourseForm
+              course={courseToUpdate}
+              onClose={() => {
+                setIsUpdateModalOpen(false);
+                setCourseToUpdate(null);
+              }}
+              onCourseUpdated={fetchTeacherData}
+            />
+          </Modal>
+        )}
       </div>
     </div>
   );

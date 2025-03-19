@@ -9,8 +9,7 @@ export class ClassroomsService {
   constructor(@InjectModel(Classroom.name) private classroomModel: Model<Classroom>) {}
 
   async create(createClassroomDto: CreateClassroomDto): Promise<Classroom> {
-    const createdClassroom = new this.classroomModel(createClassroomDto);
-    return createdClassroom.save();
+    return this.classroomModel.create(createClassroomDto);
   }
 
   async findAll(): Promise<Classroom[]> {

@@ -13,4 +13,22 @@ export default defineConfig({
       ],
     },
   },
+  server: {
+    host: '0.0.0.0',
+    port: 5173,
+    watch: {
+      usePolling: true
+    },
+    proxy: {
+      '/api': {
+        target: 'http://backend:3000',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '')
+      },
+      '/socket.io': {
+        target: 'ws://backend:3001',
+        ws: true
+      }
+    }
+  },
 })

@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { BadRequestException } from '@nestjs/common';
+import { UserRole } from '../common/enums/users.enum';
 
 describe('AuthController', () => {
   let controller: AuthController;
@@ -25,43 +26,54 @@ describe('AuthController', () => {
     expect(controller).toBeDefined();
   });
 
-  it('should return success and user data on signup', async () => {
-    const signupData = { username: 'testuser',email: 'email@email.com' , phone: '065599622', adress:'dzzdzdz', password: 'password123' };
-    const mockUser = { id: 1, username: 'testuser' };
-    mockAuthService.signup.mockResolvedValue(mockUser);
+  describe('signup', () => {
+    const signupDto = {
+      username: 'testuser',
+      email: 'test@example.com',
+      password: 'password123',
+      phone: '1234567890',
+      adress: 'Test Address',
+      role: UserRole.STUDENT
+    };
 
-    const result = await controller.signup(signupData);
+    it('should successfully create a new user', async () => {
+      const expectedResponse = {
+        access_token: 'mock_token'
+      };
+      mockAuthService.signup.mockResolvedValue(expectedResponse);
 
-    expect(result).toEqual(mockUser);
-    expect(mockAuthService.signup).toHaveBeenCalledWith(signupData);
+      const result = await controller.signup(signupDto);
+      expect(result).toEqual(expectedResponse);
+      expect(mockAuthService.signup).toHaveBeenCalledWith(signupDto);
+    });
+
+    it('should throw BadRequestException when signup fails', async () => {
+      mockAuthService.signup.mockRejectedValue(new BadRequestException('Signup failed'));
+      await expect(controller.signup(signupDto)).rejects.toThrow(BadRequestException);
+    });
   });
 
-  it('should throw Error on signup failure', async () => {
-    const signupData = { username: 'testuser',email: 'email@email.com' , phone: '065599622', adress:'dzzdzdz', password: 'password123' };
-    mockAuthService.signup.mockRejectedValue(new Error('Signup failed'));
+  describe('login', () => {
+    const loginDto = {
+      email: 'test@example.com',
+      password: 'password123'
+    };
 
-    await expect(controller.signup(signupData)).rejects.toThrow(
-      Error,
-    );
-  });
+    it('should successfully login user', async () => {
+      const expectedResponse = {
+        access_token: 'mock_token',
+        user: { id: '1', email: 'test@example.com' }
+      };
+      mockAuthService.login.mockResolvedValue(expectedResponse);
 
-  it('should return success and token on login', async () => {
-    const loginData = { email: 'walid@gmail.com', password: 'password123' };
-    const mockToken = { accessToken: 'valid_token' };
-    mockAuthService.login.mockResolvedValue(mockToken);
+      const result = await controller.login(loginDto);
+      expect(result).toEqual(expectedResponse);
+      expect(mockAuthService.login).toHaveBeenCalledWith(loginDto);
+    });
 
-    const result = await controller.login(loginData);
-
-    expect(result).toEqual(mockToken);
-    expect(mockAuthService.login).toHaveBeenCalledWith(loginData);
-  });
-
-  it('should throw Error on login failure', async () => {
-    const loginData = { email: 'walid@gmail.com', password: 'password123' };
-    mockAuthService.login.mockRejectedValue(new Error('Invalid credentials'));
-
-    await expect(controller.login(loginData)).rejects.toThrow(
-      Error,
-    );
+    it('should throw BadRequestException when login fails', async () => {
+      mockAuthService.login.mockRejectedValue(new BadRequestException('Login failed'));
+      await expect(controller.login(loginDto)).rejects.toThrow(BadRequestException);
+    });
   });
 });
