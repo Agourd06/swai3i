@@ -23,5 +23,6 @@ export class CreateEnrollmentDto {
   @IsOptional()
   status?: EnrollmentStatus;
 
-
+  @IsOptional()
+  timeSlots?: any[];
 } 

@@ -12,6 +12,11 @@ export class Enrollment extends Document {
   @Prop({ type: String, required: false })
   classroom?: string;
 
+
+
+  @Prop({ type: [Object], required: true })
+  timeSlots: any[]; // Adjust based on your time slot structure
+
   @Prop({ type: Number, required: true })
   price: number;
 
