@@ -24,7 +24,6 @@ export class EnrollmentsService {
   async create(createEnrollmentDto: CreateEnrollmentDto): Promise<Enrollment> {
     const { student, classroom,  price, timeSlots, status } = createEnrollmentDto;
 
-    // Verify that the student exists and has the student role
     const studentUser = await this.userModel.findById(student);
     if (!studentUser || studentUser.role !== UserRole.STUDENT) {
       throw new BadRequestException('Invalid student ID');
@@ -35,7 +34,6 @@ export class EnrollmentsService {
       throw new NotFoundException(`Course with ID ${createEnrollmentDto.course} not found`);
     }
 
-    // Handle classroom enrollment logic
     if (course.courseType.includes(CourseType.CLASSROOM)) {
       let existingClassroom = await this.classroomModel.findOne({ course: course._id });
       
@@ -58,19 +56,18 @@ export class EnrollmentsService {
 
       const enrollmentData = {
         student,
-        classroom: existingClassroom._id, // Use the existing classroom
+        classroom: existingClassroom._id,
       
         timeSlots,
         price,
         course: course._id,
-        status: status || EnrollmentStatus.PENDING, // Set status to PENDING if not provided
+        status: status || EnrollmentStatus.PENDING, 
       };
       console.log('enrollmentData' , enrollmentData);
       
       const createdEnrollment = new this.enrollmentModel(enrollmentData);
       const savedEnrollment = await createdEnrollment.save();
 
-      // Update the course's enrollments array
       await this.courseModel.findByIdAndUpdate(
         course._id,
         { $push: { enrollments: savedEnrollment._id } }
@@ -78,7 +75,6 @@ export class EnrollmentsService {
 
       return savedEnrollment;
     } else {
-      // Handle non-classroom course enrollment logic
       const enrollmentData = {
         student,
         course: course._id,
@@ -91,7 +87,6 @@ export class EnrollmentsService {
       const createdEnrollment = new this.enrollmentModel(enrollmentData);
       const savedEnrollment = await createdEnrollment.save();
 
-      // Update the course's enrollments array
       await this.courseModel.findByIdAndUpdate(
         course._id,
         { $push: { enrollments: savedEnrollment._id } }
@@ -200,5 +195,21 @@ export class EnrollmentsService {
     }
 
     return enrollment;
+  }
+
+  async remove(id: string): Promise<void> {
+    const enrollment = await this.enrollmentModel.findById(id);
+    if (!enrollment) {
+      throw new NotFoundException(`Enrollment ${id} not found`);
+    }
+
+    // Remove the enrollment reference from the course
+    await this.courseModel.findByIdAndUpdate(
+      enrollment.course,
+      { $pull: { enrollments: enrollment._id } }
+    );
+
+    // Delete the enrollment
+    await this.enrollmentModel.findByIdAndDelete(id);
   }
 } 

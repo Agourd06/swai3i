@@ -7,7 +7,8 @@ import {
   Query, 
   UseGuards,
   Patch,
-  Put
+  Put,
+  Delete
 } from '@nestjs/common';
 import { EnrollmentsService } from './enrollments.service';
 import { CreateEnrollmentDto } from './dto/create-enrollment.dto';
@@ -58,5 +59,10 @@ export class EnrollmentsController {
   @Put(':id/mark-paid')
   async markAsPaid(@Param('id') id: string) {
     return this.enrollmentsService.markAsPaid(id);
+  }
+
+  @Delete(':id')
+  async remove(@Param('id') id: string) {
+    return this.enrollmentsService.remove(id);
   }
 } 

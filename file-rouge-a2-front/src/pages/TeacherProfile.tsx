@@ -7,7 +7,7 @@ import { classroomFetchers } from "../fetchers/classroomFetcher";
 import { enrollmentFetchers } from "../fetchers/enrollmentFetchers";
 import UpdateCourseForm from "../components/UpdateCourseForm";
 import { Course } from "../types/Course";
-// import ConfirmDialog from "../components/common/ConfirmDialog";
+import ConfirmDialog from "../components/common/ConfirmDialog";
 // import { useAuth } from "../contexts/AuthContext";
 
 interface Teacher {
@@ -50,6 +50,8 @@ const TeacherProfile = () => {
   const [showClassroomModal, setShowClassroomModal] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [courseToUpdate, setCourseToUpdate] = useState<Course | null>(null);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [enrollmentToDelete, setEnrollmentToDelete] = useState<string | null>(null);
   // const { user } = useAuth();
 
   const fetchTeacherData = async () => {
@@ -102,12 +104,29 @@ const TeacherProfile = () => {
     fetchTeacherData();
   };
 
+  const handleConfirmDelete = async () => {
+    if (enrollmentToDelete) {
+      try {
+        await enrollmentFetchers.deleteEnrollment(enrollmentToDelete);
+        setShowConfirmDialog(false);
+        fetchTeacherData();
+      } catch (error) {
+        console.error('Error removing student:', error);
+      }
+    }
+  };
+
   const ClassroomModal = ({ course }: { course: Course }) => {
     if (!showClassroomModal) return null;
 
     const courseClassrooms = classrooms.filter(
       (classroom) => classroom.course === course._id
     );
+
+    const handleRemoveStudent = async (enrollmentId: string) => {
+      setEnrollmentToDelete(enrollmentId);
+      setShowConfirmDialog(true);
+    };
 
     return (
       <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
@@ -156,7 +175,7 @@ const TeacherProfile = () => {
                 </div>
 
                 <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 gap-2">
                     {enrollments
                       .filter(
                         (enrollment) => enrollment.classroom === classroom._id
@@ -164,16 +183,34 @@ const TeacherProfile = () => {
                       .map((enrollment) => (
                         <div
                           key={enrollment._id}
-                          className="flex items-center space-x-2 bg-white p-2 rounded-lg shadow-sm"
+                          className="flex items-center justify-between bg-white p-3 rounded-lg shadow-sm"
                         >
-                          <div className="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600 font-medium">
-                            {enrollment.student.username
-                              .charAt(0)
-                              .toUpperCase()}
+                          <div className="flex items-center space-x-3">
+                            <div className="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600 font-medium">
+                              {enrollment.student.username.charAt(0).toUpperCase()}
+                            </div>
+                            <span className="text-gray-700">
+                              {enrollment.student.username}
+                            </span>
                           </div>
-                          <span className="text-gray-700 truncate">
-                            {enrollment.student.username}
-                          </span>
+                          <button
+                            onClick={() => handleRemoveStudent(enrollment._id)}
+                            className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-full transition-colors"
+                            title="Remove student"
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="h-5 w-5"
+                              viewBox="0 0 20 20"
+                              fill="currentColor"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                          </button>
                         </div>
                       ))}
                   </div>
@@ -222,7 +259,6 @@ const TeacherProfile = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-white to-emerald-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto">
-        {/* Profile Header */}
         <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-8">
           <div className="p-6 sm:p-8">
             <div className="flex items-center space-x-4 mb-6">
@@ -383,6 +419,15 @@ const TeacherProfile = () => {
               onCourseUpdated={fetchTeacherData}
             />
           </Modal>
+        )}
+        {showConfirmDialog && (
+          <ConfirmDialog
+            isOpen={showConfirmDialog}
+            onClose={() => setShowConfirmDialog(false)}
+            onConfirm={handleConfirmDelete}
+            title="Delete Enrollment"
+            message="Are you sure you want to delete this enrollment? This action cannot be undone and may cause issues if the student has already paid."
+          />
         )}
       </div>
     </div>

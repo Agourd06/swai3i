@@ -2,18 +2,18 @@ import React from 'react';
 
 interface ConfirmDialogProps {
     isOpen: boolean;
+    onClose: () => void;
+    onConfirm: () => Promise<void>;
     title: string;
     message: string;
-    onConfirm: () => void;
-    onCancel: () => void;
 }
 
 const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
     isOpen,
-    title,
-    message,
+    onClose,
     onConfirm,
-    onCancel
+    title,
+    message
 }) => {
     if (!isOpen) return null;
 
@@ -24,7 +24,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
                 <p className="text-gray-600 mb-6">{message}</p>
                 <div className="flex justify-end space-x-3">
                     <button
-                        onClick={onCancel}
+                        onClick={onClose}
                         className="px-4 py-2 text-gray-600 hover:text-gray-700 font-medium rounded-lg
                             hover:bg-gray-100 transition-colors duration-200
                             focus:outline-none focus:ring-2 focus:ring-gray-300"

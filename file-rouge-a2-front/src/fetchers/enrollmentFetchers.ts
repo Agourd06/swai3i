@@ -52,4 +52,9 @@ export const enrollmentFetchers = {
         const response = await axiosInstance.put(`/enrollments/${enrollmentId}/complete`, data);
         return response.data;
     },
+
+    deleteEnrollment: async (enrollmentId: string): Promise<void> => {
+        const response = await axiosInstance.delete(`/enrollments/${enrollmentId}`);
+        return response.data;
+    },
 }; 
