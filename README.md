@@ -131,19 +131,16 @@ DELETE /users/:id         - Delete user
   - Socket.io-client
 
 ## 📱 Screenshots
-
 <div align="center">
 
-  <img src="screenshots/dashboard.png" alt="Dashboard" width="600"/>
-  <p><em>Dashboard view showing course listings</em></p>
 
-  <img src="screenshots/course-details.png" alt="Course Details" width="600"/>
-  <p><em>Course details page with enrollment options</em></p>
+  <img src="file-rouge-a2-front/screenshots/studentProfile.png" alt="Student Profile" width="600"/>
+  <p><em>Student Profile</em></p>
 
-  <img src="screenshots/chat.png" alt="Chat Interface" width="600"/>
-  <p><em>Real-time chat between students and teachers</em></p>
+  <img src="file-rouge-a2-front/screenshots/dashboard.png" alt="dashboard Screen" width="600"/>
+  <p><em>home page for users</em></p>
 
-  <img src="screenshots/login.png" alt="Login Screen" width="600"/>
+  <img src="file-rouge-a2-front/screenshots/login.png" alt="Login Screen" width="600"/>
   <p><em>Login page for user authentication</em></p>
 </div>
 
