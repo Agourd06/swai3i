@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { teacherFetchers } from '../fetchers/teacherFetchers';
-import { CourseCreation, CourseType } from '../types/courseCreation.types';
+import { CourseCreation, CourseType, TimeSlot } from '../types/courseCreation.types';
 
 const daysOfWeek = [
     { value: 'MONDAY', label: 'Monday' },
@@ -51,13 +51,15 @@ const AddCourseForm: React.FC<AddCourseFormProps> = ({
         }));
     };
 
-    const handleTimeSlotChange = (index: number, field: string, value: string | number) => {
+    const handleTimeSlotChange = (index: number, field: keyof TimeSlot, value: string | number) => {
         const updatedTimeSlots = [...courseData.timeSlots];
         updatedTimeSlots[index] = {
-            ...updatedTimeSlots[index],
-            [field]: value,
+            day: updatedTimeSlots[index]?.day || '',
+            hour: updatedTimeSlots[index]?.hour || 0,
+            minute: updatedTimeSlots[index]?.minute || 0,
+            [field]: value
         };
-        setCourseData((prevData) => ({
+        setCourseData(prevData => ({
             ...prevData,
             timeSlots: updatedTimeSlots,
         }));
@@ -105,7 +107,6 @@ const AddCourseForm: React.FC<AddCourseFormProps> = ({
             };
 
             const response = await teacherFetchers.createCourse(formattedData);
-            console.log('Course created successfully:', response);
             navigate(`/teacher/${teacherId}`);
             setIsModalOpen(false);
             if (onCourseAdded) {
